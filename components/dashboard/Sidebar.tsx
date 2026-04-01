@@ -5,7 +5,7 @@ export default function Sidebar({ section, setSection, sidebarOpen, setSidebarOp
     { id: 'dashboard', icon: <LayoutDashboard size={18} />, label: 'Tổng quan' },
     { id: 'accounts', icon: <Users size={18} />, label: 'Tài khoản' },
     { id: 'business-types', icon: <Building2 size={18} />, label: 'Loại hình KD' },
-    { id: 'audit', icon: <History size={18} />, label: 'Nhật ký' },
+    { id: 'audit-logs', icon: <History size={18} />, label: 'Nhật ký' },
     { id: 'settings', icon: <Settings size={18} />, label: 'Cài đặt' },
   ];
 

@@ -2,13 +2,13 @@ import { X, Check } from 'lucide-react';
 
 //  MẢNG 34 TỈNH THÀNH 
 const VIETNAM_PROVINCES = [
-  "TP Hà Nội", "TP Hồ Chí Minh", "TP Đà Nẵng", "TP Hải Phòng", "TP Cần Thơ", "TP Huế",
-  "An Giang", "Bắc Ninh", "Cà Mau", "Cao Bằng", "Đắk Lắk", 
-  "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Tĩnh", 
-  "Hưng Yên", "Khánh Hòa", "Lai Châu", "Lâm Đồng", "Lạng Sơn", 
-  "Lào Cai", "Nghệ An", "Ninh Bình", "Phú Thọ", "Quảng Ngãi", 
-  "Quảng Ninh", "Quảng Trị", "Sơn La", "Tây Ninh", "Thái Nguyên", 
-  "Thanh Hóa", "Tuyên Quang", "Vĩnh Long"
+  "Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "Huế",
+  "An Giang", "Bắc Ninh", "Cà Mau", "Cao Bằng", "Đắk Lắk",
+  "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Tĩnh",
+  "Hưng Yên", "Khánh Hòa", "Lai Châu", "Lâm Đồng", "Lạng Sơn",
+  "Lào Cai", "Nghệ An", "Ninh Bình", "Phú Thọ", "Quảng Ngãi",
+  "Quảng Ninh", "Quảng Trị", "Sơn La", "Tây Ninh", "Thái Nguyên",
+  "Thanh Hóa", "Tuyên Quang", "Vĩnh Long", "Nha Trang"
 ];
 
 export default function UserModal({ showModal, setShowModal, editUser, setEditUser, handleSaveUser, colors }: any) {
@@ -55,11 +55,25 @@ export default function UserModal({ showModal, setShowModal, editUser, setEditUs
           {/* 3. Danh sách chọn Loại hình */}
           <div>
             <label style={{ fontSize: 12, color: colors.textMuted, display: 'block', marginBottom: 5 }}>Loại hình</label>
-            <select value={editUser?.businessType || 'bán hàng'} onChange={e => setEditUser((p:any) => ({ ...p, businessType: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>
-              <option value="bán hàng">Bán hàng</option>
-              <option value="lưu trú">Lưu trú</option>
-              <option value="lưu trú/bán hàng">Cả hai</option>
-            </select>
+            <select
+                value={
+                  Array.isArray(editUser?.businessType)
+                    ? editUser.businessType.includes('rental') && editUser.businessType.includes('sale')
+                      ? 'both'
+                      : editUser.businessType.includes('rental') ? 'rental' : 'sale'
+                    : 'sale'
+                }
+                onChange={e => {
+                  const val = e.target.value;
+                  const bt = val === 'both' ? ['rental', 'sale'] : val === 'rental' ? ['rental'] : ['sale'];
+                  setEditUser((p: any) => ({ ...p, businessType: bt }));
+                }}
+                style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}
+              >
+                <option value="sale">Bán hàng</option>
+                <option value="rental">Lưu trú</option>
+                <option value="both">Cả hai</option>
+        </select>
           </div>
 
         </div>

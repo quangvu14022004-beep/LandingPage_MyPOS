@@ -7,18 +7,24 @@ export default function BusinessTypesTab({ users, colors, isDark, badgeStyle, sh
 
   const totalUsers = users.length;
   // Tính toán số lượng cho từng loại
-  const salesCount = users.filter((u: any) => u.businessType === 'bán hàng').length;
-  const lodgingCount = users.filter((u: any) => u.businessType === 'lưu trú').length;
-  const bothCount = users.filter((u: any) => u.businessType === 'lưu trú/bán hàng').length;
+ const salesCount = users.filter((u: any) => Array.isArray(u.businessType) && u.businessType.includes('sale') && u.businessType.length === 1).length;
+const lodgingCount = users.filter((u: any) => Array.isArray(u.businessType) && u.businessType.includes('rental') && u.businessType.length === 1).length;
+const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.businessType.includes('rental') && u.businessType.includes('sale')).length;
 
   const types = [
-    { id: 'bán hàng', name: 'Bán hàng', desc: 'Quản lý sản phẩm, đơn hàng, doanh thu', count: salesCount, color: '#3B82F6', icon: <ShoppingCart size={32} /> },
-    { id: 'lưu trú', name: 'Lưu trú', desc: 'Quản lý phòng, hợp đồng, check-in/out', count: lodgingCount, color: '#10b981', icon: <Hotel size={32} /> },
-    { id: 'lưu trú/bán hàng', name: 'Cả hai', desc: 'Kết hợp cả bán hàng và lưu trú', count: bothCount, color: '#f59e0b', icon: <Store size={32} /> },
+    { id: 'sale', name: 'Bán hàng', desc: 'Quản lý sản phẩm, đơn hàng, doanh thu', count: salesCount, color: '#3B82F6', icon: <ShoppingCart size={32} /> },
+    { id: 'rental', name: 'Lưu trú', desc: 'Quản lý phòng, hợp đồng, check-in/out', count: lodgingCount, color: '#10b981', icon: <Hotel size={32} /> },
+    { id: 'both', name: 'Cả hai', desc: 'Kết hợp cả bán hàng và lưu trú', count: bothCount, color: '#f59e0b', icon: <Store size={32} /> },
   ];
 
   // Lọc ra danh sách user thuộc loại hình đang được chọn
-  const displayedUsers = selectedType ? users.filter((u: any) => u.businessType === selectedType) : [];
+  const displayedUsers = selectedType ? users.filter((u: any) => {
+  if (!Array.isArray(u.businessType)) return false;
+  if (selectedType === 'sale') return u.businessType.includes('sale') && u.businessType.length === 1;
+  if (selectedType === 'rental') return u.businessType.includes('rental') && u.businessType.length === 1;
+  if (selectedType === 'both') return u.businessType.includes('rental') && u.businessType.includes('sale');
+  return false;
+}) : [];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>

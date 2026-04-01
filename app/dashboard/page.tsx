@@ -12,6 +12,7 @@ import OverviewTab from '@/components/dashboard/OverviewTab';
 import SettingsTab from '@/components/dashboard/SettingsTab';
 import BusinessTypesTab from '@/components/dashboard/BusinessTypesTab';
 import FullScreenLoader from '@/components/register/FullScreenLoader';
+import AuditLogsTab from '@/components/dashboard/AuditLogsTab';
 
 export default function DashboardPage() {
   const { lang, setLang, theme, toggleTheme } = useLang(); 
@@ -39,7 +40,7 @@ export default function DashboardPage() {
       setIsLoading(true);
       try {
         const token = localStorage.getItem('admin_token');
-        // Đã sửa thành cổng 3000
+        // Đã sửa thành cổng 3001
         const res = await fetch('http://localhost:3001/api/v1/admin/users', {
           method: 'GET',
           headers: {
@@ -62,7 +63,7 @@ export default function DashboardPage() {
               email: u.email,
               phone: u.phone,
               role: u.role,              
-              status: u.isActive ? 'active' : 'locked', 
+              status: u.isLocked ? 'locked' : 'active',
               
               //  Lấy Loại hình, Thành phố và Tên từ bảng Shop sang (Dùng shop?. để không bị lỗi nếu user chưa có shop)
               businessType: shop?.businessType || 'Chưa cập nhật', 
@@ -137,8 +138,8 @@ export default function DashboardPage() {
   // =================================================================
   const handleToggleStatus = async (user: any) => {
     // Nếu trạng thái cũ là 'active' thì cái mới sẽ là 'locked' (tức là false)
-    const newIsActive = user.status === 'locked'; 
-    const newStatusString = newIsActive ? 'active' : 'locked';
+    const newIsLocked = user.status === 'active';
+    const newStatusString = newIsLocked ? 'locked' : 'active';
     const token = localStorage.getItem('admin_token');
     
     // Cập nhật giao diện ngay lập tức cho mượt
@@ -149,7 +150,7 @@ export default function DashboardPage() {
       const res = await fetch(`http://localhost:3001/api/v1/admin/users/${user.id}/toggle-status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ isActive: newIsActive }) 
+        body: JSON.stringify({ isLocked: newIsLocked }) 
       });
 
       if (res.ok) {
@@ -168,9 +169,9 @@ export default function DashboardPage() {
   const totalUsers = users.length;
   const activeUsers = users.filter(u => u.status === 'active').length;
   const lockedUsers = users.filter(u => u.status === 'locked').length;
-  const salesUsers = users.filter(u => u.businessType === 'bán hàng').length;
-  const lodgingUsers = users.filter(u => u.businessType === 'lưu trú').length;
-  const bothUsers = users.filter(u => u.businessType === 'lưu trú/bán hàng').length;
+  const salesUsers = users.filter(u => Array.isArray(u.businessType) && u.businessType.includes('sale') && u.businessType.length === 1).length;
+  const lodgingUsers = users.filter(u => Array.isArray(u.businessType) && u.businessType.includes('rental') && u.businessType.length === 1).length;
+  const bothUsers = users.filter(u => Array.isArray(u.businessType) && u.businessType.includes('rental') && u.businessType.includes('sale')).length;
   
   const MONTHLY_DATA = [42, 58, 71, 65, 89, 103, 95, 112, 128, 145, 138, 162];
   const MONTHS = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
@@ -207,10 +208,14 @@ export default function DashboardPage() {
             {section === 'accounts' && 'Quản lý tài khoản'}
             {section === 'business-types' && 'Loại hình kinh doanh'}
             {section === 'settings' && 'Cài đặt'}
+            {section === 'audit-logs' && 'Nhật ký hệ thống'}
           </h2>
-          <button onClick={() => window.location.href = '/home'} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, border: `1px solid ${colors.border}`, background: 'transparent', color: colors.textMuted, cursor: 'pointer', fontSize: 13 }}>
-            <LogOut size={14} /> Thoát
-          </button>
+          <button onClick={() => {
+          localStorage.removeItem('admin_token');
+          window.location.href = '/login';
+        }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, border: `1px solid ${colors.border}`, background: 'transparent', color: colors.textMuted, cursor: 'pointer', fontSize: 13 }}>
+          <LogOut size={14} /> Thoát
+      </button>
         </header>
 
         <main style={{ flex: 1, padding: 24, width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflowX: 'auto' }}>
@@ -240,6 +245,9 @@ export default function DashboardPage() {
           {section === 'settings' && (
             <SettingsTab theme={theme} toggleTheme={toggleTheme} lang={lang} setLang={setLang} colors={colors} isDark={isDark} showToast={showToast} />
           )}
+          {section === 'audit-logs' && (
+          <AuditLogsTab colors={colors} isDark={isDark} />
+)}
 
         </main>
       </div>

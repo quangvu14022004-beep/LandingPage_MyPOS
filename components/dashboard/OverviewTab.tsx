@@ -119,7 +119,11 @@ export default function OverviewTab({
               <tr key={u.id}>
                 <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.text }}>{u.fullName}</td>
                 <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.username}</td>
-                <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.businessType}</td>
+                <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>
+                            {Array.isArray(u.businessType)
+                              ? u.businessType.map((t: string) => t === 'rental' ? 'Lưu trú' : 'Bán hàng').join(' + ')
+                              : 'Chưa cập nhật'}
+                          </td>
                 <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.city}</td>
                 <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}` }}>
                   <span style={badgeStyle(u.status)}>{u.status === 'active' ? 'Hoạt động' : 'Bị khóa'}</span>
