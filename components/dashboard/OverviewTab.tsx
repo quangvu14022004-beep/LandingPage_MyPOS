@@ -1,12 +1,113 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Users, UserCheck, UserX, Store } from 'lucide-react';
 
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
+};
+
+function LineChart({ data, months, isDark, colors }: any) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [animated, setAnimated] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => setAnimated(true), 100);
+  }, []);
+
+  const max = Math.max(...data, 1);
+  const width = 500;
+  const height = 160;
+  const padL = 30, padR = 10, padT = 20, padB = 24;
+  const chartW = width - padL - padR;
+  const chartH = height - padT - padB;
+
+  const points = data.map((v: number, i: number) => ({
+    x: padL + (i / (data.length - 1)) * chartW,
+    y: padT + chartH - (v / max) * chartH,
+    value: v,
+  }));
+
+  const pathD = points.map((p: any, i: number) =>
+  i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`
+).join(' ');
+
+  const areaD = `${pathD} L ${points[points.length-1].x} ${padT + chartH} L ${points[0].x} ${padT + chartH} Z`;
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <svg viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height: 'auto', overflow: 'visible' }}>
+        <defs>
+          <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.02" />
+          </linearGradient>
+          <linearGradient id="strokeGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#818CF8" />
+            <stop offset="50%" stopColor="#3B82F6" />
+            <stop offset="100%" stopColor="#06B6D4" />
+          </linearGradient>
+        </defs>
+        {[0, 0.25, 0.5, 0.75, 1].map((v, i) => (
+          <line key={i}
+            x1={padL} y1={padT + chartH * (1 - v)}
+            x2={padL + chartW} y2={padT + chartH * (1 - v)}
+            stroke={isDark ? '#334155' : '#F1F5F9'} strokeWidth="1"
+          />
+        ))}
+        <path d={areaD} fill="url(#lineGrad)"
+          style={{ opacity: animated ? 1 : 0, transition: 'opacity 1s ease' }}
+        />
+        <path d={pathD} fill="none" stroke="url(#strokeGrad)" strokeWidth="2.5" strokeLinecap="round"
+          style={{
+            strokeDasharray: 1000,
+            strokeDashoffset: animated ? 0 : 1000,
+            transition: 'stroke-dashoffset 1.5s ease',
+          }}
+        />
+        {points.map((p: any, i: number) => (
+          <g key={i}>
+            <text x={p.x} y={height - 4} textAnchor="middle"
+              style={{ fontSize: 9, fill: colors.textMuted }}
+            >{months[i]}</text>
+            {data[i] > 0 && (
+              <text x={p.x} y={p.y - 10} textAnchor="middle"
+                style={{ fontSize: 9, fill: '#3B82F6', fontWeight: 700, opacity: animated ? 1 : 0, transition: `opacity 0.5s ease ${i * 0.1}s` }}
+              >{data[i]}</text>
+            )}
+            <circle cx={p.x} cy={p.y} r={hoveredIndex === i ? 6 : 4}
+              fill={hoveredIndex === i ? '#3B82F6' : 'white'}
+              stroke="#3B82F6" strokeWidth="2"
+              style={{ cursor: 'pointer', transition: 'all 0.2s', opacity: animated ? 1 : 0 }}
+              onMouseEnter={() => setHoveredIndex(i)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            />
+            {hoveredIndex === i && (
+              <g>
+                <rect x={p.x - 28} y={p.y - 36} width={56} height={24} rx={6} fill="#3B82F6" />
+                <text x={p.x} y={p.y - 20} textAnchor="middle"
+                  style={{ fontSize: 11, fill: 'white', fontWeight: 700 }}
+                >{data[i]} user</text>
+              </g>
+            )}
+          </g>
+        ))}
+      </svg>
+    </div>
+  );
+}
 export default function OverviewTab({
   totalUsers, activeUsers, lockedUsers, salesUsers, lodgingUsers, bothUsers,
   MONTHLY_DATA, MONTHS, maxBar, users, colors, isDark, badgeStyle
 }: any) {
   // State để theo dõi xem chuột đang rê vào thẻ nào (0, 1, 2, 3)
   const [hoverCard, setHoverCard] = useState<number | null>(null);
+  const isMobile = useIsMobile();
 
   const statCards = [
     { label: 'Tổng tài khoản', value: totalUsers, sub: '+2 hôm nay', icon: <Users size={20} />, color: '#3B82F6' },
@@ -18,7 +119,7 @@ export default function OverviewTab({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* 4 Thẻ Stats có hiệu ứng Hover */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
         {statCards.map((s, i) => {
           const isHovered = hoverCard === i; // Kiểm tra xem thẻ hiện tại có đang được hover không
           return (
@@ -63,22 +164,10 @@ export default function OverviewTab({
       </div>
 
       {/* 2 Biểu đồ */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
         <div style={{ background: colors.card, borderRadius: 14, padding: 20, border: `1px solid ${colors.border}` }}>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: colors.text }}>Người dùng mới theo tháng</div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 160 }}>
-            {MONTHLY_DATA.map((v: any, i: number) => (
-              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <div style={{
-                  width: '100%', borderRadius: '4px 4px 0 0',
-                  background: i === 11 ? '#3B82F6' : `${isDark ? '#334155' : '#e2e8f0'}`,
-                  height: Math.round((v / maxBar) * 130),
-                  transition: 'all 0.3s',
-                }} />
-                <span style={{ fontSize: 9, color: colors.textMuted }}>{MONTHS[i]}</span>
-              </div>
-            ))}
-          </div>
+          <LineChart data={MONTHLY_DATA} months={MONTHS} isDark={isDark} colors={colors} />
         </div>
 
         <div style={{ background: colors.card, borderRadius: 14, padding: 20, border: `1px solid ${colors.border}` }}>

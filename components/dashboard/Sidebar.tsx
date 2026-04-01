@@ -1,6 +1,20 @@
 import { LayoutDashboard, Users, Building2, History, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
+};
 
 export default function Sidebar({ section, setSection, sidebarOpen, setSidebarOpen, colors, isDark }: any) {
+  const isMobile = useIsMobile();
+
   const menuItems = [
     { id: 'dashboard', icon: <LayoutDashboard size={18} />, label: 'Tổng quan' },
     { id: 'accounts', icon: <Users size={18} />, label: 'Tài khoản' },
@@ -9,10 +23,43 @@ export default function Sidebar({ section, setSection, sidebarOpen, setSidebarOp
     { id: 'settings', icon: <Settings size={18} />, label: 'Cài đặt' },
   ];
 
+  // MOBILE — Bottom Navigation
+  if (isMobile) {
+    return (
+      <nav style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100,
+        background: colors.card, borderTop: `1px solid ${colors.border}`,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-around',
+        padding: '8px 0', height: 60,
+      }}>
+        {menuItems.map(item => (
+          <button key={item.id} onClick={() => setSection(item.id)} style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+            padding: '4px 8px', borderRadius: 8, border: 'none',
+            background: 'transparent',
+            color: section === item.id ? '#3B82F6' : colors.textMuted,
+            cursor: 'pointer', fontSize: 10, fontWeight: section === item.id ? 700 : 500,
+            transition: 'all 0.2s',
+          }}>
+            <div style={{
+              padding: '4px 12px', borderRadius: 20,
+              background: section === item.id ? 'rgba(59,130,246,0.15)' : 'transparent',
+              transition: 'all 0.2s',
+            }}>
+              {item.icon}
+            </div>
+            <span style={{ whiteSpace: 'nowrap', fontSize: 9 }}>{item.label}</span>
+          </button>
+        ))}
+      </nav>
+    );
+  }
+
+  // DESKTOP — Sidebar như cũ
   return (
     <aside style={{
-      position: 'fixed', top: 0, left: 0, height: '100vh', 
-      width: sidebarOpen ? 220 : 64, background: colors.sidebarBg, 
+      position: 'fixed', top: 0, left: 0, height: '100vh',
+      width: sidebarOpen ? 220 : 64, background: colors.sidebarBg,
       display: 'flex', flexDirection: 'column', transition: 'width 0.3s ease',
       borderRight: `1px solid ${colors.border}`, zIndex: 100
     }}>
@@ -22,7 +69,6 @@ export default function Sidebar({ section, setSection, sidebarOpen, setSidebarOp
         </div>
         {sidebarOpen && <span style={{ color: colors.text, fontWeight: 700, fontSize: 15, whiteSpace: 'nowrap' }}>myPOS Admin</span>}
       </div>
-
       <div style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 4, overflowY: 'auto' }}>
         {menuItems.map(item => (
           <button key={item.id} onClick={() => setSection(item.id)} style={{
@@ -39,7 +85,6 @@ export default function Sidebar({ section, setSection, sidebarOpen, setSidebarOp
           </button>
         ))}
       </div>
-
       <div style={{ padding: 12, borderTop: '1px solid #ffffff15' }}>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
           width: '100%', display: 'flex', alignItems: 'center', justifyContent: sidebarOpen ? 'flex-end' : 'center',

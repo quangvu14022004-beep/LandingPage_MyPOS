@@ -14,6 +14,17 @@ import BusinessTypesTab from '@/components/dashboard/BusinessTypesTab';
 import FullScreenLoader from '@/components/register/FullScreenLoader';
 import AuditLogsTab from '@/components/dashboard/AuditLogsTab';
 
+// Hook detect mobile
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
+};
 export default function DashboardPage() {
   const { lang, setLang, theme, toggleTheme } = useLang(); 
   const [section, setSection] = useState('dashboard');
@@ -26,6 +37,7 @@ export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const isDark = theme === 'dark';
+  const isMobile = useIsMobile();
 
   const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
     setToast({ msg, type });
@@ -68,7 +80,8 @@ export default function DashboardPage() {
               //  Lấy Loại hình, Thành phố và Tên từ bảng Shop sang (Dùng shop?. để không bị lỗi nếu user chưa có shop)
               businessType: shop?.businessType || 'Chưa cập nhật', 
               city: shop?.city || 'Chưa cập nhật',
-              shopName: shop?.name || 'Chưa liên kết'
+              shopName: shop?.name || 'Chưa liên kết',
+              createdAt: u.createdAt,
             };
           });
           
@@ -173,9 +186,16 @@ export default function DashboardPage() {
   const lodgingUsers = users.filter(u => Array.isArray(u.businessType) && u.businessType.includes('rental') && u.businessType.length === 1).length;
   const bothUsers = users.filter(u => Array.isArray(u.businessType) && u.businessType.includes('rental') && u.businessType.includes('sale')).length;
   
-  const MONTHLY_DATA = [42, 58, 71, 65, 89, 103, 95, 112, 128, 145, 138, 162];
+  const currentYear = new Date().getFullYear();
+  const MONTHLY_DATA = Array.from({ length: 12 }, (_, i) =>
+    users.filter(u => {
+      if (!u.createdAt) return false;
+      const d = new Date(u.createdAt);
+      return d.getFullYear() === currentYear && d.getMonth() === i;
+    }).length
+  );
   const MONTHS = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
-  const maxBar = Math.max(...MONTHLY_DATA);
+  const maxBar = Math.max(...MONTHLY_DATA, 1);
 
   const colors = {
     bg: isDark ? '#1C1F2E' : '#EFF6FF',
@@ -201,7 +221,7 @@ export default function DashboardPage() {
 
       <Sidebar section={section} setSection={setSection} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} colors={colors} isDark={isDark} />
 
-      <div style={{ paddingLeft: sidebarOpen ? 220 : 64, transition: 'padding-left 0.3s ease', minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%', boxSizing: 'border-box' }}>
+      <div style={{ paddingLeft: isMobile ? 0 : (sidebarOpen ? 220 : 64), paddingBottom: isMobile ? 60 : 0, transition: 'padding-left 0.3s ease', minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%', boxSizing: 'border-box' }}>
         <header style={{ position: 'sticky', top: 0, zIndex: 40, background: colors.card, borderBottom: `1px solid ${colors.border}`, padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <h2 style={{ fontSize: 16, fontWeight: 700, color: colors.text }}>
             {section === 'dashboard' && 'Tổng quan'}

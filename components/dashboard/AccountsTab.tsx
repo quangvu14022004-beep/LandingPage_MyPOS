@@ -1,6 +1,16 @@
-  import { useState } from 'react';
-  import { Search, Edit2, Lock, Unlock } from 'lucide-react';
+  import { useState, useEffect } from 'react';
+  import { Search, Edit2, Lock, Unlock, SlidersHorizontal, X } from 'lucide-react';
 
+  const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
+};
  const VIETNAM_PROVINCES = [
   "Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "Huế",
   "An Giang", "Bắc Ninh", "Cà Mau", "Cao Bằng", "Đắk Lắk",
@@ -17,6 +27,8 @@
     const [businessFilter, setBusinessFilter] = useState('');
     const [cityFilter, setCityFilter] = useState('');
     const [page, setPage] = useState(1);
+    const [showFilter, setShowFilter] = useState(false);
+    const isMobile = useIsMobile();
     const PER_PAGE = 7;
 
     // ==========================================
@@ -60,66 +72,105 @@
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={{ background: colors.card, borderRadius: 14, padding: 20, border: `1px solid ${colors.border}`, overflowX: 'auto' }}>
           
-          {/* THANH BỘ LỌC */}
-          <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
-            <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
-              <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: colors.textMuted }} />
-              <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Tìm kiếm tên, username, email..." style={{ width: '100%', padding: '8px 8px 8px 32px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }} />
-            </div>
-            <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); }} style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>
-              <option value="">Tất cả trạng thái</option>
-              <option value="active">Hoạt động</option>
-              <option value="locked">Bị khóa</option>
-            </select>
-            <select value={businessFilter} onChange={e => { setBusinessFilter(e.target.value); setPage(1); }} style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>
-              <option value="">Tất cả loại hình</option>
-              <option value="rental">Lưu trú</option>
-              <option value="sale">Bán hàng</option>
-              <option value="both">Cả hai</option>
-            </select>
-            <select value={cityFilter} onChange={e => { setCityFilter(e.target.value); setPage(1); }} style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>
-              <option value="">Tất cả tỉnh thành</option>
-              <option value="Chưa cập nhật">Chưa cập nhật</option>
-              {VIETNAM_PROVINCES.map((province) => (
-                <option key={province} value={province}>{province}</option>
-              ))}
-            </select>
-            {/* NÚT XÓA BỘ LỌC */}
-    {(search || statusFilter || businessFilter || cityFilter) && (
-      <button
-        onClick={() => {
-          setSearch('');
-          setStatusFilter('');
-          setBusinessFilter('');
-          setCityFilter('');
-          setPage(1);
-        }}
-        style={{
-          padding: '8px 12px', borderRadius: 8,
-          border: '1px solid #FECACA',
-          background: '#FEF2F2',
-          color: '#DC2626',
-          cursor: 'pointer',
-          fontSize: 13,
-          fontWeight: 600,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          whiteSpace: 'nowrap',
-        }}
-      >
-        ✕ Xóa bộ lọc
-      </button>
-)}
-          </div>
+         {/* THANH BỘ LỌC */}
+<div style={{ display: 'flex', gap: 10, marginBottom: 16, alignItems: 'center' }}>
+
+  {/* Ô tìm kiếm */}
+  <div style={{ position: 'relative', flex: 1 }}>
+    <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: colors.textMuted }} />
+    <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Tìm kiếm tên, username, email..." style={{ width: '100%', padding: '8px 8px 8px 32px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+  </div>
+
+  {/* Nút lọc */}
+  <div style={{ position: 'relative' }}>
+    <button
+      onClick={() => setShowFilter(!showFilter)}
+      style={{
+        padding: '8px 12px', borderRadius: 8, cursor: 'pointer', fontSize: 13,
+        display: 'flex', alignItems: 'center', gap: 6,
+        border: `1px solid ${(statusFilter || businessFilter || cityFilter) ? '#2563EB' : colors.border}`,
+        background: (statusFilter || businessFilter || cityFilter) ? '#EFF6FF' : colors.inputBg,
+        color: (statusFilter || businessFilter || cityFilter) ? '#2563EB' : colors.textMuted,
+        fontWeight: (statusFilter || businessFilter || cityFilter) ? 700 : 400,
+      }}
+    >
+      <SlidersHorizontal size={14} />
+      {!isMobile && 'Bộ lọc'}
+      {(statusFilter || businessFilter || cityFilter) && (
+        <span style={{ background: '#2563EB', color: 'white', borderRadius: '50%', width: 16, height: 16, fontSize: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
+          {[statusFilter, businessFilter, cityFilter].filter(Boolean).length}
+        </span>
+      )}
+    </button>
+
+    {/* Dropdown filter */}
+    {showFilter && (
+      <div style={{
+        position: 'absolute', top: '110%', right: 0, zIndex: 100,
+        background: colors.card, border: `1px solid ${colors.border}`,
+        borderRadius: 12, padding: 16, minWidth: 240,
+        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+        display: 'flex', flexDirection: 'column', gap: 10,
+      }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: colors.text }}>Bộ lọc</span>
+          <button onClick={() => setShowFilter(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.textMuted }}>
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Lọc trạng thái */}
+        <div>
+          <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 600, display: 'block', marginBottom: 4 }}>TRẠNG THÁI</label>
+          <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); }} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>
+            <option value="">Tất cả trạng thái</option>
+            <option value="active">Hoạt động</option>
+            <option value="locked">Bị khóa</option>
+          </select>
+        </div>
+
+        {/* Lọc loại hình */}
+        <div>
+          <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 600, display: 'block', marginBottom: 4 }}>LOẠI HÌNH</label>
+          <select value={businessFilter} onChange={e => { setBusinessFilter(e.target.value); setPage(1); }} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>
+            <option value="">Tất cả loại hình</option>
+            <option value="rental">Lưu trú</option>
+            <option value="sale">Bán hàng</option>
+            <option value="both">Cả hai</option>
+          </select>
+        </div>
+
+        {/* Lọc tỉnh thành */}
+        <div>
+          <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 600, display: 'block', marginBottom: 4 }}>TỈNH THÀNH</label>
+          <select value={cityFilter} onChange={e => { setCityFilter(e.target.value); setPage(1); }} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>
+            <option value="">Tất cả tỉnh thành</option>
+            <option value="Chưa cập nhật">Chưa cập nhật</option>
+            {VIETNAM_PROVINCES.map((province) => (
+              <option key={province} value={province}>{province}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Nút xóa bộ lọc */}
+        {(statusFilter || businessFilter || cityFilter) && (
+          <button onClick={() => { setStatusFilter(''); setBusinessFilter(''); setCityFilter(''); setPage(1); setShowFilter(false); }} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #FECACA', background: '#FEF2F2', color: '#DC2626', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
+            ✕ Xóa bộ lọc
+          </button>
+        )}
+      </div>
+    )}
+  </div>
+</div>
 
           {/* BẢNG DỮ LIỆU */}
           <table style={{ width: '100%', minWidth: 800, borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr>
-                {['Họ tên', 'Username', 'Email', 'Loại hình', 'Thành phố', 'Trạng thái', 'Thao tác'].map(h => (
-                  <th key={h} style={{ textAlign: 'left', padding: '8px 10px', color: colors.textMuted, fontWeight: 500, fontSize: 11, borderBottom: `1px solid ${colors.border}` }}>{h}</th>
-                ))}
+                {(['Họ tên', ...(isMobile ? [] : ['Username', 'Email']), 'Loại hình', 'Thành phố', 'Trạng thái', 'Thao tác'] as string[]).map(h => (
+                <th key={h} style={{ textAlign: 'left', padding: '8px 10px', color: colors.textMuted, fontWeight: 500, fontSize: 11, borderBottom: `1px solid ${colors.border}`, whiteSpace: 'nowrap' }}>{h}</th>
+              ))}
               </tr>
             </thead>
             <tbody>
@@ -127,14 +178,14 @@
                 paginated.map((u: any) => (
                   <tr key={u.id}>
                     <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.text, fontWeight: 500 }}>{u.fullName || 'Trống'}</td>
-                    <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.username}</td>
-                    <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.email || 'Trống'}</td>
-                    <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>
+                    {!isMobile && <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.username}</td>}
+                    {!isMobile && <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.email || 'Trống'}</td>}
+                    <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted, whiteSpace: 'nowrap'}}>
                                 {Array.isArray(u.businessType) 
                                   ? u.businessType.map((t: string) => t === 'rental' ? 'Lưu trú' : 'Bán hàng').join(' + ')
                                   : u.businessType || 'Chưa cập nhật'}
                               </td>
-                    <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.city}</td>
+                    <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted,whiteSpace: 'nowrap' }}>{u.city}</td>
                     <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}` }}><span style={badgeStyle(u.status)}>{u.status === 'active' ? 'Hoạt động' : 'Bị khóa'}</span></td>
                     <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}` }}>
                       <div style={{ display: 'flex', gap: 6 }}>
@@ -152,7 +203,7 @@
               ) : (
                 // Báo lỗi khi lọc không ra ai
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '30px', color: colors.textMuted, fontStyle: 'italic' }}>
+                  <td colSpan={isMobile ? 5 : 7} style={{ textAlign: 'center', padding: '30px', color: colors.textMuted, fontStyle: 'italic' }}>
                     Không tìm thấy tài khoản nào khớp với bộ lọc của bạn.
                   </td>
                 </tr>
