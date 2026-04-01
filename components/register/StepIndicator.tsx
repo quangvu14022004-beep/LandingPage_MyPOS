@@ -13,7 +13,7 @@ export default function StepIndicator({ step, r }: { step: number; r: any }) {
           {s < 3 && <div style={{ flex: 1, height: '2px', margin: '0 8px', background: step > s ? '#2563EB' : '#DBEAFE' }} />}
         </div>
       ))}
-      <span style={{ fontSize: '13px', color: '#6B7280', marginLeft: '8px' }}>
+      <span style={{ fontSize: '13px', color: '#111827', WebkitTextFillColor: '#111827', marginLeft: '8px' }}>
         {r.step} {step}/3
       </span>
     </div>

@@ -38,9 +38,9 @@ export default function DashboardPage() {
     const fetchUsers = async () => {
       setIsLoading(true);
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('admin_token');
         // Đã sửa thành cổng 3000
-        const res = await fetch('http://localhost:3001/api/admin/users', {
+        const res = await fetch('http://localhost:3001/api/v1/admin/users', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -50,18 +50,27 @@ export default function DashboardPage() {
 
         if (res.ok) {
           const rawData = await res.json();
-          const mappedUsers = rawData.map((u: any) => ({
-            id: u._id,                 
-            username: u.username,
-            fullName: u.fullName,
-            email: u.email,
-            phone: u.phone,
-            role: u.role,              
-            status: u.isActive ? 'active' : 'locked', 
-            businessType: 'Chưa cập nhật', 
-            city: 'Chưa cập nhật',
-            shopName: u.shopId ? `Mã shop: ${u.shopId.substring(0, 8)}...` : 'Chưa liên kết'
-          }));
+          
+          const mappedUsers = rawData.map((u: any) => {
+            // Lôi thông tin shop ra (nếu user có shopId)
+            const shop = u.shopId;
+
+            return {
+              id: u._id,                 
+              username: u.username,
+              fullName: u.fullName,
+              email: u.email,
+              phone: u.phone,
+              role: u.role,              
+              status: u.isActive ? 'active' : 'locked', 
+              
+              //  Lấy Loại hình, Thành phố và Tên từ bảng Shop sang (Dùng shop?. để không bị lỗi nếu user chưa có shop)
+              businessType: shop?.businessType || 'Chưa cập nhật', 
+              city: shop?.city || 'Chưa cập nhật',
+              shopName: shop?.name || 'Chưa liên kết'
+            };
+          });
+          
           setUsers(mappedUsers);
         } else {
           showToast('Lỗi khi lấy dữ liệu', 'error');
@@ -82,11 +91,11 @@ export default function DashboardPage() {
   const handleSaveUser = async () => {
     if (!editUser) return;
     setIsLoading(true);
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('admin_token');
 
     try {
       if (editUser.id) {
-        const res = await fetch(`http://localhost:3001/api/admin/users/${editUser.id}`, {
+        const res = await fetch(`http://localhost:3001/api/v1/admin/users/${editUser.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify(editUser)
@@ -100,7 +109,7 @@ export default function DashboardPage() {
         }
       } else {
         const payload = { ...editUser, status: 'active' };
-        const res = await fetch(`http://localhost:3001/api/admin/users`, {
+        const res = await fetch(`http://localhost:3001/api/v1/admin/users`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify(payload)
@@ -130,14 +139,14 @@ export default function DashboardPage() {
     // Nếu trạng thái cũ là 'active' thì cái mới sẽ là 'locked' (tức là false)
     const newIsActive = user.status === 'locked'; 
     const newStatusString = newIsActive ? 'active' : 'locked';
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('admin_token');
     
     // Cập nhật giao diện ngay lập tức cho mượt
     setUsers(prev => prev.map(u => u.id === user.id ? { ...u, status: newStatusString } : u));
 
     try {
       // GỌI ĐÚNG ĐƯỜNG DẪN Backend: /toggle-status và truyền isActive
-      const res = await fetch(`http://localhost:3001/api/admin/users/${user.id}/toggle-status`, {
+      const res = await fetch(`http://localhost:3001/api/v1/admin/users/${user.id}/toggle-status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ isActive: newIsActive }) 

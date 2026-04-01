@@ -9,8 +9,8 @@ type Store = {
   name: string;
   address: string;
   city: string;
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
   businessType: string;
 };
 
@@ -102,18 +102,25 @@ export default function MapSection() {
       });
 
       // Store markers
-      stores.filter(s => s.lat !== null && s.lng !== null).forEach((store) => {
-        leaflet.marker([store.lat, store.lng], { icon: customIcon })
-          .bindPopup(`
-            <div style="padding:12px;font-weight:600;min-width:180px">
-              <h4 style="color:#2563EB;margin-bottom:8px;font-size:14px">✓ ${store.name}</h4>
-              <p style="color:#666;font-size:13px;margin:0">
-                <strong>Loại:</strong> ${store.businessType}<br/>
-                <strong>Địa chỉ:</strong> ${store.address}, ${store.city}
-              </p>
-            </div>`)
-          .addTo(map);
-      });
+const validStores = stores
+  .filter((s): s is Store & { lat: number; lng: number } =>
+    s.lat !== null && s.lng !== null &&
+    typeof s.lat === 'number' && typeof s.lng === 'number'
+  );
+
+    validStores.forEach((store) => {
+      const latlng: [number, number] = [store.lat, store.lng];
+      leaflet.marker(latlng, { icon: customIcon })
+        .bindPopup(`
+          <div style="padding:12px;font-weight:600;min-width:180px">
+            <h4 style="color:#2563EB;margin-bottom:8px;font-size:14px">✓ ${store.name}</h4>
+            <p style="color:#666;font-size:13px;margin:0">
+              <strong>Loại:</strong> ${store.businessType}<br/>
+              <strong>Địa chỉ:</strong> ${store.address}, ${store.city}
+            </p>
+          </div>`)
+        .addTo(map);
+    });
 
       // Quần đảo Hoàng Sa
       leaflet.marker([16.5, 112.0], {

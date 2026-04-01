@@ -1,6 +1,7 @@
 import AuthInput from './AuthInput';
+import { BedDouble, ShoppingCart } from 'lucide-react';
 
-export default function Step3ShopSetup({ data, setData, hasLodging, setHasLodging, hasSales, setHasSales, onNext, onBack, loading, r, CITIES }: any) {
+export default function Step3ShopSetup({ data, setData, hasLodging, setHasLodging, hasSales, setHasSales, onNext, onBack, loading, r, CITIES, businessTypes }: any) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <AuthInput label={`${r.shopName} *`} placeholder={r.shopNamePh} value={data.name} onChange={e => setData({...data, name: e.target.value})} />
@@ -11,19 +12,60 @@ export default function Step3ShopSetup({ data, setData, hasLodging, setHasLodgin
       <AuthInput label={r.shopEmail} type="email" placeholder={r.shopEmailPh} value={data.email} onChange={e => setData({...data, email: e.target.value})} />
       
       {/* Checkbox */}
-      <div>
-        <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#2563EB', marginBottom: '6px' }}>{r.businessType} (Chọn ít nhất 1) *</label>
-        <div style={{ display: 'flex', gap: '12px', marginTop: '4px' }}>
-          <label style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '12px', cursor: 'pointer', border: hasLodging ? '2px solid #2563EB' : '2px solid #DBEAFE', background: hasLodging ? '#EFF6FF' : '#FAFAFA' }}>
-            <input type="checkbox" checked={hasLodging} onChange={e => setHasLodging(e.target.checked)} style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#2563EB' }} />
-            <span style={{ fontSize: '14px', fontWeight: '600', color: hasLodging ? '#2563EB' : '#4B5563' }}>Lưu trú (Khách sạn)</span>
-          </label>
-          <label style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '12px', cursor: 'pointer', border: hasSales ? '2px solid #2563EB' : '2px solid #DBEAFE', background: hasSales ? '#EFF6FF' : '#FAFAFA' }}>
-            <input type="checkbox" checked={hasSales} onChange={e => setHasSales(e.target.checked)} style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#2563EB' }} />
-            <span style={{ fontSize: '14px', fontWeight: '600', color: hasSales ? '#2563EB' : '#4B5563' }}>POS & Bán lẻ</span>
-          </label>
-        </div>
-      </div>
+      <div style={{ display: 'flex', gap: '12px', marginTop: '4px' }}>
+  {businessTypes && businessTypes.length > 0 ? (
+    businessTypes.map((bt: any) => {
+      const isChecked = bt._id === 'bt_rental' ? hasLodging : hasSales;
+      const setChecked = bt._id === 'bt_rental' ? setHasLodging : setHasSales;
+      return (
+        <label key={bt._id} style={{
+          flex: 1, display: 'flex', alignItems: 'center', gap: '10px',
+          padding: '12px 16px', borderRadius: '12px', cursor: 'pointer',
+          border: isChecked ? '2px solid #2563EB' : '2px solid #DBEAFE',
+          background: isChecked ? '#EFF6FF' : 'white',
+        }}>
+          <input
+            type="checkbox"
+            checked={isChecked}
+            onChange={e => setChecked(e.target.checked)}
+            style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#2563EB' }}
+          />
+          <span style={{
+            fontSize: '14px', fontWeight: '600',
+            color: isChecked ? '#2563EB' : '#111827',
+            WebkitTextFillColor: isChecked ? '#2563EB' : '#111827',
+          }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {bt._id === 'bt_rental' ? (
+                <BedDouble size={18} color={isChecked ? '#2563EB' : '#6B7280'} style={{ flexShrink: 0 }} />
+              ) : (
+                <ShoppingCart size={18} color={isChecked ? '#2563EB' : '#6B7280'} style={{ flexShrink: 0 }} />
+              )}
+              <span style={{
+                fontSize: '14px', fontWeight: '600',
+                color: isChecked ? '#2563EB' : '#111827',
+                WebkitTextFillColor: isChecked ? '#2563EB' : '#111827',
+              }}>
+                {bt.name}
+  </span>
+</span>
+          </span>
+        </label>
+      );
+    })
+  ) : (
+    <>
+      <label style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '12px', cursor: 'pointer', border: hasLodging ? '2px solid #2563EB' : '2px solid #DBEAFE', background: hasLodging ? '#EFF6FF' : 'white' }}>
+        <input type="checkbox" checked={hasLodging} onChange={e => setHasLodging(e.target.checked)} style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#2563EB' }} />
+        <span style={{ fontSize: '14px', fontWeight: '600', color: hasLodging ? '#2563EB' : '#111827', WebkitTextFillColor: hasLodging ? '#2563EB' : '#111827' }}>Lưu trú (Khách sạn)</span>
+      </label>
+      <label style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '12px', cursor: 'pointer', border: hasSales ? '2px solid #2563EB' : '2px solid #DBEAFE', background: hasSales ? '#EFF6FF' : 'white' }}>
+        <input type="checkbox" checked={hasSales} onChange={e => setHasSales(e.target.checked)} style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#2563EB' }} />
+        <span style={{ fontSize: '14px', fontWeight: '600', color: hasSales ? '#2563EB' : '#111827', WebkitTextFillColor: hasSales ? '#2563EB' : '#111827' }}>POS & Bán lẻ</span>
+      </label>
+    </>
+  )}
+</div>
 
       <AuthInput label={`${r.address} *`} placeholder={r.addressPh} value={data.address} onChange={e => setData({...data, address: e.target.value})} />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>

@@ -5,6 +5,7 @@ import { useLang } from '@/lib/LanguageContext';
 import * as bcrypt from 'bcryptjs';
 import { AlertTriangle } from 'lucide-react';
 
+
 // Import Component đã tách
 import FullScreenLoader from '@/components/register/FullScreenLoader';
 import StepIndicator from '@/components/register/StepIndicator';
@@ -24,6 +25,7 @@ export default function RegisterPage() {
   const r = t.register;
   
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [businessTypes, setBusinessTypes] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
   const [error, setError] = useState('');
@@ -43,6 +45,35 @@ export default function RegisterPage() {
     const raw = localStorage.getItem('register_step1');
     if (raw) { try { setStep1(JSON.parse(raw)); } catch (e) { console.error(e); } }
   }, []);
+  // Fetch danh sách businessTypes từ API
+useEffect(() => {
+  fetch('http://localhost:3001/api/business-types')
+    .then(res => res.json())
+    .then(data => { if (data.success) setBusinessTypes(data.data); })
+    .catch(err => console.error(err));
+}, []);
+
+  // Xử lý sau khi Google redirect về
+useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const stepParam = params.get('step');
+  const provider = params.get('provider');
+  const errorParam = params.get('error');
+  const token = localStorage.getItem('token');
+
+  // Nếu Google redirect về kèm lỗi → hiện thông báo
+  if (errorParam === 'email_exists') {
+    setError('Email này đã được đăng ký bằng Google! Vui lòng đăng nhập.');
+  }
+
+  // Nếu đã có token + step=3 + provider=google → nhảy thẳng vào Step 3
+  if (stepParam === '3' && provider === 'google' && token) {
+    accessTokenRef.current = token;
+    setStep(3);
+    // Xóa query params trên URL cho sạch
+    window.history.replaceState({}, '', '/register');
+  }
+}, []);
 
   const hashPassword = async (password: string) => bcrypt.hash(password, 10);
   const startCooldown = () => { /* Logic đếm ngược giữ nguyên */
@@ -71,6 +102,7 @@ export default function RegisterPage() {
       startCooldown(); setLoading(false); goTransition(2);
     } catch { setError(r.errConnect); setLoading(false); }
   };
+  
 
   const handleStep2 = async () => {
     setError('');
@@ -101,21 +133,38 @@ export default function RegisterPage() {
     setError('');
     if (!step3.name || !step3.address || !step3.city || (!hasLodging && !hasSales)) return setError(r.errRequired);
     
-    let finalBusinessType = (hasLodging && hasSales) ? 'Cả Hai' : hasLodging ? 'Khách sạn & Lưu trú' : 'Pos và bán lẻ';
+    const finalBusinessType: string[] = [];
+    if (hasLodging) finalBusinessType.push('rental');
+    if (hasSales) finalBusinessType.push('sale');
     
     setLoading(true);
     try {
+      // ✅ Xóa /v1 đi, nhưng THÊM Authorization chứa Token vào headers
       const res = await fetch('http://localhost:3001/api/auth/shop/setup', {
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessTokenRef.current}` },
+        method: 'POST', 
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${accessTokenRef.current}` // 🔑 Chìa khóa ở đây!
+        },
         body: JSON.stringify({ ...step3, businessType: finalBusinessType }),
       });
+      
       const data = await res.json();
-      if (!res.ok) { setError(r.errRequired); return; }
+      
+      // Kiểm tra nếu lỗi 401 (hoặc lỗi khác)
+      if (!res.ok) { 
+        setError(data.message || 'Lỗi khi tạo cửa hàng!'); 
+        setLoading(false);
+        return; 
+      }
       
       localStorage.setItem('token', data.access_token || accessTokenRef.current);
       localStorage.removeItem('register_step1');
       window.location.href = '/dashboard';
-    } catch { setError(r.errConnect); } finally { setLoading(false); }
+    } catch { 
+      setError(r.errConnect); 
+      setLoading(false); 
+    }
   };
 
   const stepTitles = [r.step1Title, 'Xác thực Email', r.step2Title];
@@ -145,7 +194,7 @@ export default function RegisterPage() {
         {/* Các Component Form */}
         {step === 1 && <Step1Account data={step1} setData={setStep1} onNext={handleStep1} loading={loading} r={r} />}
         {step === 2 && <Step2OTP data={step2} setData={setStep2} onNext={handleStep2} onBack={() => { setStep(1); setError(''); }} resendOTP={handleStep1} resendCooldown={resendCooldown} loading={loading} r={r} email={step1.email} />}
-        {step === 3 && <Step3ShopSetup data={step3} setData={setStep3} hasLodging={hasLodging} setHasLodging={setHasLodging} hasSales={hasSales} setHasSales={setHasSales} onNext={handleStep3} onBack={() => { setStep(2); setError(''); }} loading={loading} r={r} CITIES={CITIES} />}
+        {step === 3 && <Step3ShopSetup data={step3} setData={setStep3} hasLodging={hasLodging} setHasLodging={setHasLodging} hasSales={hasSales} setHasSales={setHasSales} onNext={handleStep3} onBack={() => { setStep(2); setError(''); }} loading={loading} r={r} CITIES={CITIES} businessTypes={businessTypes} />}
         
       </div>
     </div>

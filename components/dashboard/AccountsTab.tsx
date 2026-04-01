@@ -1,7 +1,17 @@
 import { useState } from 'react';
 import { Search, Edit2, Lock, Unlock } from 'lucide-react';
 
-export default function AccountsTab({ users, setUsers, onEditUser, showToast,onToggleStatus, colors, isDark }: any) {
+const VIETNAM_PROVINCES = [
+  "TP Hà Nội", "TP Hồ Chí Minh", "TP Đà Nẵng", "TP Hải Phòng", "TP Cần Thơ", "TP Huế",
+  "An Giang", "Bắc Ninh", "Cà Mau", "Cao Bằng", "Đắk Lắk", 
+  "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Tĩnh", 
+  "Hưng Yên", "Khánh Hòa", "Lai Châu", "Lâm Đồng", "Lạng Sơn", 
+  "Lào Cai", "Nghệ An", "Ninh Bình", "Phú Thọ", "Quảng Ngãi", 
+  "Quảng Ninh", "Quảng Trị", "Sơn La", "Tây Ninh", "Thái Nguyên", 
+  "Thanh Hóa", "Tuyên Quang", "Vĩnh Long"
+];
+
+export default function AccountsTab({ users, setUsers, onEditUser, showToast, onToggleStatus, colors, isDark }: any) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [businessFilter, setBusinessFilter] = useState('');
@@ -9,27 +19,32 @@ export default function AccountsTab({ users, setUsers, onEditUser, showToast,onT
   const [page, setPage] = useState(1);
   const PER_PAGE = 5;
 
-  const uniqueCities = Array.from(new Set(users.map((u: any) => u.city))).filter(Boolean) as string[];
-
+  // ==========================================
+  // LOGIC LỌC DỮ LIỆU (Đã tối ưu cực kỳ an toàn)
+  // ==========================================
   const filtered = users.filter((u: any) => {
-    if (search && !u.fullName.toLowerCase().includes(search.toLowerCase()) && !u.username.toLowerCase().includes(search.toLowerCase()) && !u.email.toLowerCase().includes(search.toLowerCase())) return false;
-    if (statusFilter && u.status !== statusFilter) return false;
-    if (businessFilter && u.businessType !== businessFilter) return false;
-    if (cityFilter && u.city !== cityFilter) return false;
-    return true;
+    // 1. Lọc từ khóa (Dùng thêm dấu ?. để lỡ fullName/email có trống thì web không bị sập)
+    const matchSearch = search === '' || 
+      u.fullName?.toLowerCase().includes(search.toLowerCase()) || 
+      u.username?.toLowerCase().includes(search.toLowerCase()) || 
+      u.email?.toLowerCase().includes(search.toLowerCase());
+
+    // 2. Lọc trạng thái
+    const matchStatus = statusFilter === '' || u.status === statusFilter;
+
+    // 3. Lọc loại hình
+    const matchBusiness = businessFilter === '' || u.businessType === businessFilter;
+
+    // 4. Lọc thành phố
+    const matchCity = cityFilter === '' || u.city === cityFilter;
+
+    // Chỉ giữ lại những ai thỏa mãn CẢ 4 điều kiện
+    return matchSearch && matchStatus && matchBusiness && matchCity;
   });
 
-  const totalPages = Math.ceil(filtered.length / PER_PAGE);
+  // Tính toán phân trang an toàn (Nếu không có ai thì vẫn hiện trang 1/1)
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-
-  const handleLockToggle = (id: number) => {
-    setUsers((prev: any) => prev.map((u: any) => {
-      if (u.id !== id) return u;
-      const newStatus = u.status === 'active' ? 'locked' : 'active';
-      showToast(`Đã ${newStatus === 'locked' ? 'khóa' : 'mở khóa'} tài khoản ${u.username}`);
-      return { ...u, status: newStatus };
-    }));
-  };
 
   const badgeStyle = (status: string) => ({
     padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 700,
@@ -37,16 +52,16 @@ export default function AccountsTab({ users, setUsers, onEditUser, showToast,onT
     color: status === 'active' ? (isDark ? '#4ADE80' : '#14532d') : (isDark ? '#F87171' : '#7f1d1d'),
     border: `1px solid ${status === 'active' ? (isDark ? 'rgba(34, 197, 94, 0.3)' : '#BBF7D0') : (isDark ? 'rgba(239, 68, 68, 0.3)' : '#FECACA')}`
   });
-
+  
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ background: colors.card, borderRadius: 14, padding: 20, border: `1px solid ${colors.border}`, overflowX: 'auto' }}>
         
-        {/* Bộ lọc */}
+        {/* THANH BỘ LỌC */}
         <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
             <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: colors.textMuted }} />
-            <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Tìm kiếm..." style={{ width: '100%', padding: '8px 8px 8px 32px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }} />
+            <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Tìm kiếm tên, username, email..." style={{ width: '100%', padding: '8px 8px 8px 32px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }} />
           </div>
           <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); }} style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>
             <option value="">Tất cả trạng thái</option>
@@ -58,14 +73,18 @@ export default function AccountsTab({ users, setUsers, onEditUser, showToast,onT
             <option value="bán hàng">Bán hàng</option>
             <option value="lưu trú">Lưu trú</option>
             <option value="lưu trú/bán hàng">Cả hai</option>
+            <option value="hệ thống">Hệ thống</option>
           </select>
           <select value={cityFilter} onChange={e => { setCityFilter(e.target.value); setPage(1); }} style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>
             <option value="">Tất cả tỉnh thành</option>
-            {uniqueCities.map(city => <option key={city} value={city}>{city}</option>)}
+            <option value="Chưa cập nhật">Chưa cập nhật</option>
+            {VIETNAM_PROVINCES.map((province) => (
+              <option key={province} value={province}>{province}</option>
+            ))}
           </select>
         </div>
 
-        {/* Bảng dữ liệu */}
+        {/* BẢNG DỮ LIỆU */}
         <table style={{ width: '100%', minWidth: 800, borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr>
@@ -75,31 +94,40 @@ export default function AccountsTab({ users, setUsers, onEditUser, showToast,onT
             </tr>
           </thead>
           <tbody>
-            {paginated.map((u: any) => (
-              <tr key={u.id}>
-                <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.text, fontWeight: 500 }}>{u.fullName}</td>
-                <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.username}</td>
-                <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.email}</td>
-                <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.businessType}</td>
-                <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.city}</td>
-                <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}` }}><span style={badgeStyle(u.status)}>{u.status === 'active' ? 'Hoạt động' : 'Bị khóa'}</span></td>
-                <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}` }}>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <button onClick={() => onEditUser(u)} style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${colors.border}`, background: 'transparent', color: colors.textMuted, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Edit2 size={12} /> Sửa</button>
-                    <button 
-                        onClick={() => onToggleStatus(u)} 
-                        style={{ padding: '5px 10px', borderRadius: 6, border: 'none', background: u.status === 'active' ? '#fee2e2' : '#dcfce7', color: u.status === 'active' ? '#991b1b' : '#166534', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 }}
-                      >
-                        {u.status === 'active' ? <><Lock size={12} /> Khóa</> : <><Unlock size={12} /> Mở khóa</>}
-                      </button>
-                  </div>
+            {paginated.length > 0 ? (
+              paginated.map((u: any) => (
+                <tr key={u.id}>
+                  <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.text, fontWeight: 500 }}>{u.fullName || 'Trống'}</td>
+                  <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.username}</td>
+                  <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.email || 'Trống'}</td>
+                  <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.businessType}</td>
+                  <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.city}</td>
+                  <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}` }}><span style={badgeStyle(u.status)}>{u.status === 'active' ? 'Hoạt động' : 'Bị khóa'}</span></td>
+                  <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}` }}>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button onClick={() => onEditUser(u)} style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${colors.border}`, background: 'transparent', color: colors.textMuted, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Edit2 size={12} /> Sửa</button>
+                      <button 
+                          onClick={() => onToggleStatus(u)} 
+                          style={{ padding: '5px 10px', borderRadius: 6, border: 'none', background: u.status === 'active' ? '#fee2e2' : '#dcfce7', color: u.status === 'active' ? '#991b1b' : '#166534', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 }}
+                        >
+                          {u.status === 'active' ? <><Lock size={12} /> Khóa</> : <><Unlock size={12} /> Mở khóa</>}
+                        </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              // Báo lỗi khi lọc không ra ai
+              <tr>
+                <td colSpan={7} style={{ textAlign: 'center', padding: '30px', color: colors.textMuted, fontStyle: 'italic' }}>
+                  Không tìm thấy tài khoản nào khớp với bộ lọc của bạn.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
 
-        {/* Phân trang */}
+        {/* PHÂN TRANG */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14, fontSize: 12, color: colors.textMuted }}>
           <span>Trang {page}/{totalPages} — {filtered.length} tài khoản</span>
           <div style={{ display: 'flex', gap: 6 }}>
