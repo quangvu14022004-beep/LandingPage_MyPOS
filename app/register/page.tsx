@@ -134,7 +134,7 @@ useEffect(() => {
     if (!step3.name || !step3.address || !step3.city || (!hasLodging && !hasSales)) return setError(r.errRequired);
     
     const finalBusinessType: string[] = [];
-    if (hasLodging) finalBusinessType.push('rental');
+    if (hasLodging) finalBusinessType.push('accommodation');
     if (hasSales) finalBusinessType.push('sale');
     
     setLoading(true);

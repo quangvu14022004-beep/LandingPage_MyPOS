@@ -170,7 +170,7 @@ export default function AuditLogsTab({ colors, isDark }: any) {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr>
-                {(['Thời gian', 'Người dùng', 'Hành động', ...(isMobile ? [] : ['Tài nguyên', 'Mô tả']), 'Kết quả'] as string[]).map(h => (
+                {(['Thời gian', 'Người dùng', 'Hành động', ...(isMobile ? [] : ['Tài nguyên', 'Mô tả', 'Kết quả'])] as string[]).map(h => (
                   <th key={h} style={{ textAlign: 'left', padding: '8px 10px', color: colors.textMuted, fontWeight: 500, fontSize: 11, borderBottom: `1px solid ${colors.border}` }}>{h}</th>
                 ))}
               </tr>
@@ -191,12 +191,14 @@ export default function AuditLogsTab({ colors, isDark }: any) {
                   {!isMobile && (
                     <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted, maxWidth: 250, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{log.description || '—'}</td>
                     )}
-                  <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}` }}>
-                    {log.success
-                        ? <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#16A34A', whiteSpace: 'nowrap' }}><CheckCircle size={14} />{!isMobile && ' Thành công'}</span>
-                        : <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#DC2626', whiteSpace: 'nowrap' }}><XCircle size={14} />{!isMobile && ' Thất bại'}</span>
-                        }
-                  </td>
+                  {!isMobile && (
+                <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}` }}>
+                  {log.success
+                    ? <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#16A34A', whiteSpace: 'nowrap' }}><CheckCircle size={14} /> Thành công</span>
+                    : <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#DC2626', whiteSpace: 'nowrap' }}><XCircle size={14} /> Thất bại</span>
+                  }
+                </td>
+)}
                 </tr>
               )) : (
                 <tr>

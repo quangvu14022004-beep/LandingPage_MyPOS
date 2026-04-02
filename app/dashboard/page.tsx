@@ -183,8 +183,8 @@ export default function DashboardPage() {
   const activeUsers = users.filter(u => u.status === 'active').length;
   const lockedUsers = users.filter(u => u.status === 'locked').length;
   const salesUsers = users.filter(u => Array.isArray(u.businessType) && u.businessType.includes('sale') && u.businessType.length === 1).length;
-  const lodgingUsers = users.filter(u => Array.isArray(u.businessType) && u.businessType.includes('rental') && u.businessType.length === 1).length;
-  const bothUsers = users.filter(u => Array.isArray(u.businessType) && u.businessType.includes('rental') && u.businessType.includes('sale')).length;
+  const lodgingUsers = users.filter(u => Array.isArray(u.businessType) && u.businessType.includes('accommodation') && u.businessType.length === 1).length;
+  const bothUsers = users.filter(u => Array.isArray(u.businessType) && u.businessType.includes('accommodation') && u.businessType.includes('sale')).length;
   
   const currentYear = new Date().getFullYear();
   const MONTHLY_DATA = Array.from({ length: 12 }, (_, i) =>

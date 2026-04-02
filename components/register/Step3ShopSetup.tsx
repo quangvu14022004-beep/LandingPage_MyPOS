@@ -15,8 +15,8 @@ export default function Step3ShopSetup({ data, setData, hasLodging, setHasLodgin
       <div style={{ display: 'flex', gap: '12px', marginTop: '4px' }}>
   {businessTypes && businessTypes.length > 0 ? (
     businessTypes.map((bt: any) => {
-      const isChecked = bt._id === 'bt_rental' ? hasLodging : hasSales;
-      const setChecked = bt._id === 'bt_rental' ? setHasLodging : setHasSales;
+      const isChecked = bt._id === 'bt_accommodation' ? hasLodging : hasSales;
+      const setChecked = bt._id === 'bt_accommodation' ? setHasLodging : setHasSales;
       return (
         <label key={bt._id} style={{
           flex: 1, display: 'flex', alignItems: 'center', gap: '10px',
@@ -36,7 +36,7 @@ export default function Step3ShopSetup({ data, setData, hasLodging, setHasLodgin
             WebkitTextFillColor: isChecked ? '#2563EB' : '#111827',
           }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {bt._id === 'bt_rental' ? (
+              {bt._id === 'bt_accommodation' ? (
                 <BedDouble size={18} color={isChecked ? '#2563EB' : '#6B7280'} style={{ flexShrink: 0 }} />
               ) : (
                 <ShoppingCart size={18} color={isChecked ? '#2563EB' : '#6B7280'} style={{ flexShrink: 0 }} />

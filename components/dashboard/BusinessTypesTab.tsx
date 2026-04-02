@@ -8,12 +8,12 @@ export default function BusinessTypesTab({ users, colors, isDark, badgeStyle, sh
   const totalUsers = users.length;
   // Tính toán số lượng cho từng loại
  const salesCount = users.filter((u: any) => Array.isArray(u.businessType) && u.businessType.includes('sale') && u.businessType.length === 1).length;
-const lodgingCount = users.filter((u: any) => Array.isArray(u.businessType) && u.businessType.includes('rental') && u.businessType.length === 1).length;
-const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.businessType.includes('rental') && u.businessType.includes('sale')).length;
+const lodgingCount = users.filter((u: any) => Array.isArray(u.businessType) && u.businessType.includes('accommodation') && u.businessType.length === 1).length;
+const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.businessType.includes('accommodation') && u.businessType.includes('sale')).length;
 
   const types = [
     { id: 'sale', name: 'Bán hàng', desc: 'Quản lý sản phẩm, đơn hàng, doanh thu', count: salesCount, color: '#3B82F6', icon: <ShoppingCart size={32} /> },
-    { id: 'rental', name: 'Lưu trú', desc: 'Quản lý phòng, hợp đồng, check-in/out', count: lodgingCount, color: '#10b981', icon: <Hotel size={32} /> },
+    { id: 'accommodation', name: 'Lưu trú', desc: 'Quản lý phòng, hợp đồng, check-in/out', count: lodgingCount, color: '#10b981', icon: <Hotel size={32} /> },
     { id: 'both', name: 'Cả hai', desc: 'Kết hợp cả bán hàng và lưu trú', count: bothCount, color: '#f59e0b', icon: <Store size={32} /> },
   ];
 
@@ -21,24 +21,27 @@ const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.bu
   const displayedUsers = selectedType ? users.filter((u: any) => {
   if (!Array.isArray(u.businessType)) return false;
   if (selectedType === 'sale') return u.businessType.includes('sale') && u.businessType.length === 1;
-  if (selectedType === 'rental') return u.businessType.includes('rental') && u.businessType.length === 1;
-  if (selectedType === 'both') return u.businessType.includes('rental') && u.businessType.includes('sale');
+  if (selectedType === 'accommodation') return u.businessType.includes('accommodation') && u.businessType.length === 1;
+  if (selectedType === 'both') return u.businessType.includes('accommodation') && u.businessType.includes('sale');
   return false;
 }) : [];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: colors.text, margin: 0 }}>Danh sách loại hình kinh doanh</h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: colors.text, margin: 0, flex: 1 }}>Danh sách loại hình kinh doanh</h3>
         <button onClick={() => showToast('Tính năng thêm loại hình đang được phát triển!')} style={{ 
-          display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', 
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '8px 16px', 
           borderRadius: 8, border: 'none', background: '#3B82F6', color: 'white', 
-          fontSize: 13, fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(59,130,246,0.3)' 
+          fontSize: 13, fontWeight: 600, cursor: 'pointer',
+          boxShadow: '0 4px 12px rgba(59,130,246,0.3)',
+          whiteSpace: 'nowrap', flexShrink: 0,
         }}>
           <Plus size={14} /> Thêm loại hình
         </button>
-      </div>
+</div>
 
       {/* 3 Thẻ Card cho phép Click */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>

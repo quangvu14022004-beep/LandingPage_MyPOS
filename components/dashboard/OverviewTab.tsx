@@ -113,7 +113,7 @@ export default function OverviewTab({
     { label: 'Tổng tài khoản', value: totalUsers, sub: '+2 hôm nay', icon: <Users size={20} />, color: '#3B82F6' },
     { label: 'Đang hoạt động', value: activeUsers, sub: `${Math.round(activeUsers / totalUsers * 100)}%`, icon: <UserCheck size={20} />, color: '#10b981' },
     { label: 'Bị khóa', value: lockedUsers, sub: `${Math.round(lockedUsers / totalUsers * 100)}%`, icon: <UserX size={20} />, color: '#ef4444' },
-    { label: 'Tổng cửa hàng', value: totalUsers, sub: '+1 tuần này', icon: <Store size={20} />, color: '#f59e0b' },
+    { label: 'Tổng cửa hàng', value: users.filter((u: any) => u.shopName !== 'Chưa liên kết').length, sub: '+1 tuần này', icon: <Store size={20} />, color: '#f59e0b' },
   ];
 
   return (
@@ -210,7 +210,7 @@ export default function OverviewTab({
                 <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.username}</td>
                 <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>
                             {Array.isArray(u.businessType)
-                              ? u.businessType.map((t: string) => t === 'rental' ? 'Lưu trú' : 'Bán hàng').join(' + ')
+                              ? u.businessType.map((t: string) => t === 'accommodation' ? 'Lưu trú' : 'Bán hàng').join(' + ')
                               : 'Chưa cập nhật'}
                           </td>
                 <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.city}</td>

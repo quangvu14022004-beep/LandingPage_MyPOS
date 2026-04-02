@@ -46,9 +46,9 @@
 
       // 3. Lọc loại hình
       const matchBusiness = businessFilter === '' || 
-  (businessFilter === 'rental' && Array.isArray(u.businessType) && u.businessType.includes('rental') && u.businessType.length === 1) ||
+  (businessFilter === 'accommodation' && Array.isArray(u.businessType) && u.businessType.includes('accommodation') && u.businessType.length === 1) ||
   (businessFilter === 'sale' && Array.isArray(u.businessType) && u.businessType.includes('sale') && u.businessType.length === 1) ||
-  (businessFilter === 'both' && Array.isArray(u.businessType) && u.businessType.includes('rental') && u.businessType.includes('sale'));
+  (businessFilter === 'both' && Array.isArray(u.businessType) && u.businessType.includes('accommodation') && u.businessType.includes('sale'));
 
       // 4. Lọc thành phố
       const matchCity = cityFilter === '' || u.city === cityFilter;
@@ -106,12 +106,13 @@
     {/* Dropdown filter */}
     {showFilter && (
       <div style={{
-        position: 'absolute', top: '110%', right: 0, zIndex: 100,
-        background: colors.card, border: `1px solid ${colors.border}`,
-        borderRadius: 12, padding: 16, minWidth: 240,
-        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-        display: 'flex', flexDirection: 'column', gap: 10,
-      }}>
+      position: 'fixed', top: '50%', right: 16, transform: 'translateY(-50%)', zIndex: 1000,
+      background: colors.card, border: `1px solid ${colors.border}`,
+      borderRadius: 12, padding: 16, minWidth: 240,
+      boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+      display: 'flex', flexDirection: 'column', gap: 10,
+      maxHeight: '80vh', overflowY: 'auto',
+    }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: colors.text }}>Bộ lọc</span>
@@ -135,7 +136,7 @@
           <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 600, display: 'block', marginBottom: 4 }}>LOẠI HÌNH</label>
           <select value={businessFilter} onChange={e => { setBusinessFilter(e.target.value); setPage(1); }} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>
             <option value="">Tất cả loại hình</option>
-            <option value="rental">Lưu trú</option>
+            <option value="accommodation">Lưu trú</option>
             <option value="sale">Bán hàng</option>
             <option value="both">Cả hai</option>
           </select>
@@ -182,7 +183,7 @@
                     {!isMobile && <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.email || 'Trống'}</td>}
                     <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted, whiteSpace: 'nowrap'}}>
                                 {Array.isArray(u.businessType) 
-                                  ? u.businessType.map((t: string) => t === 'rental' ? 'Lưu trú' : 'Bán hàng').join(' + ')
+                                  ? u.businessType.map((t: string) => t === 'accommodation' ? 'Lưu trú' : 'Bán hàng').join(' + ')
                                   : u.businessType || 'Chưa cập nhật'}
                               </td>
                     <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted,whiteSpace: 'nowrap' }}>{u.city}</td>
