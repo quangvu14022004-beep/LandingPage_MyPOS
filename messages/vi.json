@@ -75,6 +75,18 @@
   "trialDesc": "Không cần thẻ tín dụng. Trải nghiệm đầy đủ tính năng ngay hôm nay.",
   "trialBtn": "🎯 Đăng ký ngay"
 },
+"appScreens": {
+  "badge": "Giao diện ứng dụng",
+  "title": "Mọi tính năng trong",
+  "titleHighlight": "một ứng dụng",
+  "desc": "Quản lý toàn bộ hoạt động kinh doanh từ bán hàng đến lưu trú chỉ với một thiết bị",
+  "screens": [
+    { "label": "Đặt phòng", "desc": "Quản lý đặt phòng nhanh chóng" },
+    { "label": "Quản lý phòng", "desc": "Theo dõi trạng thái phòng realtime" },
+    { "label": "Bán hàng", "desc": "POS bán hàng tiện lợi" },
+    { "label": "Báo cáo", "desc": "Thống kê doanh thu chi tiết" }
+  ]
+},
   "stats": {
     "stores": "Cửa hàng sử dụng",
     "offline": "Hoạt động Offline",

@@ -71,16 +71,6 @@ export default function HeroSection() {
                 {t.hero.btnStart}
               </button>
             </a>
-           <div style={{ width: isMobile ? '100%' : 'auto', maxWidth: isMobile ? '320px' : 'none' }}>
-                <button className="btn-secondary" style={{
-                  padding: isMobile ? '14px 28px' : '16px 36px',
-                  fontSize: isMobile ? '15px' : '16px',
-                  width: '100%',
-                  boxSizing: 'border-box',
-                }}>
-                  {t.hero.btnDemo}
-                </button>
-            </div>
           </div>
 
           {/* Stats nhỏ */}

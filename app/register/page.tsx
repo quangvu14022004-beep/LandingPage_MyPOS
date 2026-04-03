@@ -139,7 +139,7 @@ useEffect(() => {
     
     setLoading(true);
     try {
-      // ✅ Xóa /v1 đi, nhưng THÊM Authorization chứa Token vào headers
+      //  Xóa /v1 đi, nhưng THÊM Authorization chứa Token vào headers
       const res = await fetch('http://localhost:3001/api/auth/shop/setup', {
         method: 'POST', 
         headers: { 

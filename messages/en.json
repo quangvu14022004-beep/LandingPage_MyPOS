@@ -75,6 +75,18 @@
   "trialDesc": "No credit card required. Experience all features today.",
   "trialBtn": "🎯 Register now"
 },
+"appScreens": {
+  "badge": "App Interface",
+  "title": "All features in",
+  "titleHighlight": "one app",
+  "desc": "Manage your entire business from sales to accommodation with just one device",
+  "screens": [
+    { "label": "Booking", "desc": "Manage bookings quickly" },
+    { "label": "Room Management", "desc": "Track room status in realtime" },
+    { "label": "Sales", "desc": "Convenient POS sales" },
+    { "label": "Reports", "desc": "Detailed revenue statistics" }
+  ]
+},
   "stats": {
     "stores": "Stores using",
     "offline": "Works Offline",

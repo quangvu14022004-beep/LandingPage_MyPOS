@@ -75,6 +75,18 @@
   "trialDesc": "无需信用卡。立即体验所有功能。",
   "trialBtn": "🎯 立即注册"
 },
+"appScreens": {
+  "badge": "应用界面",
+  "title": "所有功能集于",
+  "titleHighlight": "一个应用",
+  "desc": "只需一台设备，即可管理从销售到住宿的全部业务",
+  "screens": [
+    { "label": "预订", "desc": "快速管理预订" },
+    { "label": "房间管理", "desc": "实时跟踪房间状态" },
+    { "label": "销售", "desc": "便捷POS销售" },
+    { "label": "报告", "desc": "详细收入统计" }
+  ]
+},
   "stats": {
     "stores": "使用门店",
     "offline": "离线运行",
