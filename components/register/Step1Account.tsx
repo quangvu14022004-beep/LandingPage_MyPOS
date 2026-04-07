@@ -18,48 +18,54 @@ export default function Step1Account({ data, setData, onNext, loading, r }: any)
     return () => { document.body.removeChild(script); };
   }, []);
 
- const handleGoogleRegister = () => {
-  const google = (window as any).google;
-  if (!google) return alert('Google chưa tải xong, thử lại!');
+  const handleGoogleRegister = () => {
+    const google = (window as any).google;
+    if (!google) return alert('Google chưa tải xong, thử lại!');
 
-  // Tạo div ẩn để render Google button
-  const container = document.getElementById('google-btn-hidden');
-  if (!container) return;
+    const container = document.getElementById('google-btn-hidden');
+    if (!container) return;
 
-  google.accounts.id.initialize({
-    client_id: '111214843801-g89e5otcfiqfob9sev9r8kba7fg58vll.apps.googleusercontent.com',
-    callback: async (response: any) => {
-      try {
-        const res = await fetch('http://localhost:3001/api/auth/google/token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            idToken: response.credential,
-            mode: 'register',
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok) { alert(data.message || 'Lỗi đăng ký Google!'); return; }
-        localStorage.setItem('token', data.access_token);
-        window.location.href = '/register?step=3&provider=google';
-      } catch {
-        alert('Lỗi kết nối server!');
-      }
-    },
-    ux_mode: 'popup', // ✅ Dùng popup thay vì prompt
-  });
+    google.accounts.id.initialize({
+      client_id: '111214843801-g89e5otcfiqfob9sev9r8kba7fg58vll.apps.googleusercontent.com',
+      callback: async (response: any) => {
+        try {
+          // ✅ Xóa email cũ trước khi lưu cái mới
+          localStorage.removeItem('google_email');
 
-  // Render button ẩn rồi click vào nó
-  google.accounts.id.renderButton(container, {
-    type: 'standard',
-    theme: 'outline',
-    size: 'large',
-  });
+          const res = await fetch('http://localhost:3001/api/auth/google/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              idToken: response.credential,
+              mode: 'register',
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok) { alert(data.message || 'Lỗi đăng ký Google!'); return; }
 
-  // Click vào button Google vừa render
-  const btn = container.querySelector('div[role=button]') as HTMLElement;
-  if (btn) btn.click();
-};
+          localStorage.setItem('token', data.access_token);
+
+          // ✅ Giải mã idToken để lấy email và lưu vào localStorage
+          const payload = JSON.parse(atob(response.credential.split('.')[1]));
+          localStorage.setItem('google_email', payload.email);
+
+          window.location.href = '/register?step=3&provider=google';
+        } catch {
+          alert('Lỗi kết nối server!');
+        }
+      },
+      ux_mode: 'popup',
+    });
+
+    google.accounts.id.renderButton(container, {
+      type: 'standard',
+      theme: 'outline',
+      size: 'large',
+    });
+
+    const btn = container.querySelector('div[role=button]') as HTMLElement;
+    if (btn) btn.click();
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -70,7 +76,6 @@ export default function Step1Account({ data, setData, onNext, loading, r }: any)
       <AuthInput label={`${r.password} *`} type={showPass ? 'text' : 'password'} placeholder={r.passwordPh} value={data.password} onChange={(e: any) => setData({...data, password: e.target.value})} showPassBtn showPass={showPass} onTogglePass={() => setShowPass(!showPass)} />
       <AuthInput label={`${r.confirmPassword} *`} type={showConfirm ? 'text' : 'password'} placeholder={r.confirmPasswordPh} value={data.confirmPassword} onChange={(e: any) => setData({...data, confirmPassword: e.target.value})} showPassBtn showPass={showConfirm} onTogglePass={() => setShowConfirm(!showConfirm)} />
 
-      {/* NÚT TIẾP TỤC */}
       <button onClick={onNext} disabled={loading} style={{
         width: '100%', padding: '14px',
         background: loading ? '#C7D2FE' : 'linear-gradient(135deg, #2563EB, #3B82F6)',
@@ -86,14 +91,12 @@ export default function Step1Account({ data, setData, onNext, loading, r }: any)
         )}
       </button>
 
-      {/* ĐƯỜNG KẺ HOẶC */}
       <div style={{ display: 'flex', alignItems: 'center', margin: '10px 0' }}>
         <div style={{ flex: 1, height: '1px', background: '#E5E7EB' }}></div>
         <span style={{ padding: '0 10px', color: '#9CA3AF', fontSize: '12px', fontWeight: 600 }}>HOẶC</span>
         <div style={{ flex: 1, height: '1px', background: '#E5E7EB' }}></div>
       </div>
 
-      {/* NÚT GOOGLE */}
       <button
         type="button"
         onClick={handleGoogleRegister}
@@ -116,9 +119,7 @@ export default function Step1Account({ data, setData, onNext, loading, r }: any)
         />
         Đăng ký nhanh bằng Google
       </button>
-      {/* DIV ẨN để Google render button vào đây */}
       <div id="google-btn-hidden" style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}></div>
     </div>
-    
   );
 }

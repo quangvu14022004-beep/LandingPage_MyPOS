@@ -32,7 +32,7 @@ const RESOURCE_LABELS: Record<string, string> = {
   BUSINESS_TYPE: 'Loại hình KD', AUTH: 'Xác thực', SYNC: 'Đồng bộ',
 };
 
-export default function AuditLogsTab({ colors, isDark }: any) {
+export default function AuditLogsTab({ colors, isDark,d }: any) {
   const isMobile = useIsMobile();
   const [showFilter, setShowFilter] = useState(false);
   const [logs, setLogs] = useState<any[]>([]);
@@ -91,7 +91,7 @@ export default function AuditLogsTab({ colors, isDark }: any) {
   {/* Ô tìm kiếm */}
   <div style={{ position: 'relative', flex: 1 }}>
     <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: colors.textMuted }} />
-    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Tìm username, mô tả..." style={{ width: '100%', padding: '8px 8px 8px 32px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+    <input value={search} onChange={e => setSearch(e.target.value)} placeholder={d?.search || 'Tìm username, mô tả...'} style={{ width: '100%', padding: '8px 8px 8px 32px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
   </div>
 
   {/* Nút bộ lọc */}
@@ -123,34 +123,34 @@ export default function AuditLogsTab({ colors, isDark }: any) {
         display: 'flex', flexDirection: 'column', gap: 10,
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: colors.text }}>Bộ lọc</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: colors.text }}>{d?.filter || 'Bộ lọc'}</span>
           <button onClick={() => setShowFilter(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.textMuted }}><X size={16} /></button>
         </div>
         <div>
-          <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 600, display: 'block', marginBottom: 4 }}>HÀNH ĐỘNG</label>
+          <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 600, display: 'block', marginBottom: 4 }}>{d?.action?.toUpperCase() || 'HÀNH ĐỘNG'}</label>
           <select value={actionFilter} onChange={e => { setActionFilter(e.target.value); setPage(1); }} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>
-            <option value="">Tất cả hành động</option>
+            <option value="">{d?.allActions || 'Tất cả hành động'}</option>
             {Object.entries(ACTION_LABELS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
           </select>
         </div>
         <div>
-          <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 600, display: 'block', marginBottom: 4 }}>TÀI NGUYÊN</label>
+          <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 600, display: 'block', marginBottom: 4 }}>{d?.resource?.toUpperCase() || 'TÀI NGUYÊN'}</label>
           <select value={resourceFilter} onChange={e => { setResourceFilter(e.target.value); setPage(1); }} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>
-            <option value="">Tất cả tài nguyên</option>
+            <option value="">{d?.allResources || 'Tất cả tài nguyên'}</option>
             {Object.entries(RESOURCE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
         </div>
         <div>
-          <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 600, display: 'block', marginBottom: 4 }}>KẾT QUẢ</label>
+          <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 600, display: 'block', marginBottom: 4 }}>{d?.result?.toUpperCase() || 'KẾT QUẢ'}</label>
           <select value={successFilter} onChange={e => { setSuccessFilter(e.target.value); setPage(1); }} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>
-            <option value="">Tất cả kết quả</option>
-            <option value="true">Thành công</option>
-            <option value="false">Thất bại</option>
+            <option value="">{d?.allResults || 'Tất cả kết quả'}</option>
+            <option value="true">{d?.success || 'Thành công'}</option>
+            <option value="false">{d?.failed || 'Thất bại'}</option>
           </select>
         </div>
         {(actionFilter || resourceFilter || successFilter) && (
           <button onClick={() => { setActionFilter(''); setResourceFilter(''); setSuccessFilter(''); setPage(1); setShowFilter(false); }} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #FECACA', background: '#FEF2F2', color: '#DC2626', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
-            ✕ Xóa bộ lọc
+            ✕ {d?.clearFilter || 'Xóa bộ lọc'}
           </button>
         )}
       </div>
@@ -159,7 +159,7 @@ export default function AuditLogsTab({ colors, isDark }: any) {
 
   {/* Nút làm mới */}
   <button onClick={fetchLogs} style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: 'transparent', color: colors.textMuted, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, whiteSpace: 'nowrap' }}>
-    <RefreshCw size={14} /> {!isMobile && 'Làm mới'}
+    <RefreshCw size={14} /> {!isMobile && (d?.refresh || 'Làm mới')}
   </button>
 </div>
 
@@ -170,7 +170,7 @@ export default function AuditLogsTab({ colors, isDark }: any) {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr>
-                {(['Thời gian', 'Người dùng', 'Hành động', ...(isMobile ? [] : ['Tài nguyên', 'Mô tả', 'Kết quả'])] as string[]).map(h => (
+                {([d?.time||'Thời gian', d?.user||'Người dùng', d?.action||'Hành động', ...(isMobile ? [] : [d?.resource||'Tài nguyên', d?.description||'Mô tả', d?.result||'Kết quả'])] as string[]).map(h => (
                   <th key={h} style={{ textAlign: 'left', padding: '8px 10px', color: colors.textMuted, fontWeight: 500, fontSize: 11, borderBottom: `1px solid ${colors.border}` }}>{h}</th>
                 ))}
               </tr>
@@ -194,15 +194,15 @@ export default function AuditLogsTab({ colors, isDark }: any) {
                   {!isMobile && (
                 <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}` }}>
                   {log.success
-                    ? <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#16A34A', whiteSpace: 'nowrap' }}><CheckCircle size={14} /> Thành công</span>
-                    : <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#DC2626', whiteSpace: 'nowrap' }}><XCircle size={14} /> Thất bại</span>
+                    ? <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#16A34A', whiteSpace: 'nowrap' }}><CheckCircle size={14} /> {d?.success || 'Thành công'}</span>
+                    : <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#DC2626', whiteSpace: 'nowrap' }}><XCircle size={14} /> {d?.failed || 'Thất bại'}</span>
                   }
                 </td>
 )}
                 </tr>
               )) : (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '30px', color: colors.textMuted, fontStyle: 'italic' }}>Chưa có nhật ký nào.</td>
+                  <td colSpan={6} style={{ textAlign: 'center', padding: '30px', color: colors.textMuted, fontStyle: 'italic' }}>{d?.noLogs || 'Chưa có nhật ký nào.'}</td>
                 </tr>
               )}
             </tbody>
@@ -211,7 +211,7 @@ export default function AuditLogsTab({ colors, isDark }: any) {
 
         {/* PHÂN TRANG */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14, fontSize: 12, color: colors.textMuted }}>
-          <span>Trang {meta.page}/{meta.total_pages || 1} — {meta.total || 0} nhật ký</span>
+          <span>{d?.page || 'Trang'} {meta.page}/{meta.total_pages || 1} — {meta.total || 0} {d?.auditLogs || 'nhật ký'}</span>
           <div style={{ display: 'flex', gap: 4 }}>
             <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${colors.border}`, background: 'transparent', color: colors.textMuted, cursor: page === 1 ? 'not-allowed' : 'pointer', opacity: page === 1 ? 0.4 : 1 }}>‹</button>
             {Array.from({ length: meta.total_pages || 1 }, (_, i) => i + 1).map(p => (

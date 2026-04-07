@@ -29,9 +29,9 @@ function GoogleCallbackHandler() {
       localStorage.setItem('token', token);
 
       if (mode === 'register' || shopSetupDone === 'false') {
-        // Đăng ký Google xong → vào Step 3 điền thông tin shop
+      // Đăng ký Google xong → vào Step 3 điền thông tin shop
         window.location.href = '/register?step=3&provider=google';
-      } else {
+} else {
         // Đăng nhập xong → vào dashboard
         window.location.href = '/dashboard';
       }

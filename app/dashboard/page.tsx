@@ -26,7 +26,8 @@ const useIsMobile = () => {
   return isMobile;
 };
 export default function DashboardPage() {
-  const { lang, setLang, theme, toggleTheme } = useLang(); 
+  const { lang, setLang, theme, toggleTheme, t } = useLang(); 
+  const d = t.dashboard;
   const [section, setSection] = useState('dashboard');
   
   const [users, setUsers] = useState<any[]>([]);
@@ -219,16 +220,16 @@ export default function DashboardPage() {
 
       {isLoading && <FullScreenLoader text="Đang đồng bộ dữ liệu..." />}
 
-      <Sidebar section={section} setSection={setSection} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} colors={colors} isDark={isDark} />
+      <Sidebar section={section} setSection={setSection} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} colors={colors} isDark={isDark} d={d} />
 
       <div style={{ paddingLeft: isMobile ? 0 : (sidebarOpen ? 220 : 64), paddingBottom: isMobile ? 60 : 0, transition: 'padding-left 0.3s ease', minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%', boxSizing: 'border-box' }}>
         <header style={{ position: 'sticky', top: 0, zIndex: 40, background: colors.card, borderBottom: `1px solid ${colors.border}`, padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <h2 style={{ fontSize: 16, fontWeight: 700, color: colors.text }}>
-            {section === 'dashboard' && 'Tổng quan'}
-            {section === 'accounts' && 'Quản lý tài khoản'}
-            {section === 'business-types' && 'Loại hình kinh doanh'}
-            {section === 'settings' && 'Cài đặt'}
-            {section === 'audit-logs' && 'Nhật ký hệ thống'}
+            {section === 'dashboard' && d.overview}
+            {section === 'accounts' && d.accounts}
+            {section === 'business-types' && d.businessTypes}
+            {section === 'settings' && d.settings}
+            {section === 'audit-logs' && d.auditLogs}
           </h2>
           <button onClick={() => {
           localStorage.removeItem('admin_token');
@@ -246,6 +247,7 @@ export default function DashboardPage() {
               salesUsers={salesUsers} lodgingUsers={lodgingUsers} bothUsers={bothUsers}
               MONTHLY_DATA={MONTHLY_DATA} MONTHS={MONTHS} maxBar={maxBar}
               users={users} colors={colors} isDark={isDark} badgeStyle={badgeStyle}
+              d={d}
             />
           )}
 
@@ -255,18 +257,23 @@ export default function DashboardPage() {
               onEditUser={(u: any) => { setEditUser({ ...u }); setShowModal(true); }} 
               onToggleStatus={handleToggleStatus} 
               colors={colors} isDark={isDark} 
+              d={d}
             />
           )}
 
           {section === 'business-types' && (
-            <BusinessTypesTab users={users} colors={colors} isDark={isDark} badgeStyle={badgeStyle} showToast={showToast} />
+            <BusinessTypesTab users={users} colors={colors} isDark={isDark} badgeStyle={badgeStyle} showToast={showToast}
+              d={d}
+            />
           )}
 
           {section === 'settings' && (
-            <SettingsTab theme={theme} toggleTheme={toggleTheme} lang={lang} setLang={setLang} colors={colors} isDark={isDark} showToast={showToast} />
+            <SettingsTab theme={theme} toggleTheme={toggleTheme} lang={lang} setLang={setLang} colors={colors} isDark={isDark} showToast={showToast}
+              d={d}
+            />
           )}
           {section === 'audit-logs' && (
-          <AuditLogsTab colors={colors} isDark={isDark} />
+          <AuditLogsTab colors={colors} isDark={isDark} d={d} />
 )}
 
         </main>

@@ -103,18 +103,18 @@ function LineChart({ data, months, isDark, colors }: any) {
 }
 export default function OverviewTab({
   totalUsers, activeUsers, lockedUsers, salesUsers, lodgingUsers, bothUsers,
-  MONTHLY_DATA, MONTHS, maxBar, users, colors, isDark, badgeStyle
+  MONTHLY_DATA, MONTHS, maxBar, users, colors, isDark, badgeStyle, d
 }: any) {
   // State để theo dõi xem chuột đang rê vào thẻ nào (0, 1, 2, 3)
   const [hoverCard, setHoverCard] = useState<number | null>(null);
   const isMobile = useIsMobile();
 
   const statCards = [
-    { label: 'Tổng tài khoản', value: totalUsers, sub: '+2 hôm nay', icon: <Users size={20} />, color: '#3B82F6' },
-    { label: 'Đang hoạt động', value: activeUsers, sub: `${Math.round(activeUsers / totalUsers * 100)}%`, icon: <UserCheck size={20} />, color: '#10b981' },
-    { label: 'Bị khóa', value: lockedUsers, sub: `${Math.round(lockedUsers / totalUsers * 100)}%`, icon: <UserX size={20} />, color: '#ef4444' },
-    { label: 'Tổng cửa hàng', value: users.filter((u: any) => u.shopName !== 'Chưa liên kết').length, sub: '+1 tuần này', icon: <Store size={20} />, color: '#f59e0b' },
-  ];
+  { label: d?.totalAccounts || 'Tổng tài khoản', value: totalUsers, sub: '+2 hôm nay', icon: <Users size={20} />, color: '#3B82F6' },
+  { label: d?.activeAccounts || 'Đang hoạt động', value: activeUsers, sub: `${Math.round(activeUsers / totalUsers * 100)}%`, icon: <UserCheck size={20} />, color: '#10b981' },
+  { label: d?.lockedAccounts || 'Bị khóa', value: lockedUsers, sub: `${Math.round(lockedUsers / totalUsers * 100)}%`, icon: <UserX size={20} />, color: '#ef4444' },
+  { label: d?.totalShops || 'Tổng cửa hàng', value: users.filter((u: any) => u.shopName !== 'Chưa liên kết').length, sub: '+1 tuần này', icon: <Store size={20} />, color: '#f59e0b' },
+];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -166,17 +166,17 @@ export default function OverviewTab({
       {/* 2 Biểu đồ */}
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
         <div style={{ background: colors.card, borderRadius: 14, padding: 20, border: `1px solid ${colors.border}` }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: colors.text }}>Người dùng mới theo tháng</div>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: colors.text }}>{d?.newUsersChart || 'Người dùng mới theo tháng'}</div>
           <LineChart data={MONTHLY_DATA} months={MONTHS} isDark={isDark} colors={colors} />
         </div>
 
         <div style={{ background: colors.card, borderRadius: 14, padding: 20, border: `1px solid ${colors.border}` }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: colors.text }}>Loại hình KD</div>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: colors.text }}>{d?.businessTypeChart || 'Loại hình KD'}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {[
-              { label: 'Bán hàng', value: salesUsers, color: '#3B82F6' },
-              { label: 'Lưu trú', value: lodgingUsers, color: '#10b981' },
-              { label: 'Cả hai', value: bothUsers, color: '#f59e0b' },
+              { label: d?.sale || 'Bán hàng', value: salesUsers, color: '#3B82F6' },
+              { label: d?.accommodation || 'Lưu trú', value: lodgingUsers, color: '#10b981' },
+              { label: d?.both || 'Cả hai', value: bothUsers, color: '#f59e0b' },
             ].map((item, i) => (
               <div key={i}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, fontSize: 12 }}>
@@ -194,11 +194,11 @@ export default function OverviewTab({
 
       {/* Bảng Top 5 Users */}
       <div style={{ background: colors.card, borderRadius: 14, padding: 20, border: `1px solid ${colors.border}`, overflowX: 'auto' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 14, color: colors.text }}>Tài khoản mới nhất</div>
+        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 14, color: colors.text }}>{d?.latestAccounts || 'Tài khoản mới nhất'}</div>
         <table style={{ width: '100%', minWidth: 600, borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr>
-              {['Họ tên', 'Username', 'Loại hình', 'Thành phố', 'Trạng thái'].map(h => (
+              {[d?.fullName||'Họ tên', d?.username||'Username', d?.businessType||'Loại hình', d?.city||'Thành phố', d?.status||'Trạng thái'].map(h => (
                 <th key={h} style={{ textAlign: 'left', padding: '8px 10px', color: colors.textMuted, fontWeight: 500, fontSize: 11, borderBottom: `1px solid ${colors.border}` }}>{h}</th>
               ))}
             </tr>

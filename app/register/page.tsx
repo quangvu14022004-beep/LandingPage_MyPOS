@@ -70,7 +70,6 @@ useEffect(() => {
   if (stepParam === '3' && provider === 'google' && token) {
     accessTokenRef.current = token;
     setStep(3);
-    // Xóa query params trên URL cho sạch
     window.history.replaceState({}, '', '/register');
   }
 }, []);

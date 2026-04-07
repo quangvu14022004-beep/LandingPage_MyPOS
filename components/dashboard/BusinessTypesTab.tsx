@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Store, ShoppingCart, Hotel, Plus, X } from 'lucide-react';
 
-export default function BusinessTypesTab({ users, colors, isDark, badgeStyle, showToast }: any) {
+export default function BusinessTypesTab({ users, colors, isDark, badgeStyle, showToast, d }: any) {
   // State lưu loại hình đang được click chọn ('bán hàng', 'lưu trú', hoặc 'lưu trú/bán hàng')
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
@@ -12,9 +12,9 @@ const lodgingCount = users.filter((u: any) => Array.isArray(u.businessType) && u
 const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.businessType.includes('accommodation') && u.businessType.includes('sale')).length;
 
   const types = [
-    { id: 'sale', name: 'Bán hàng', desc: 'Quản lý sản phẩm, đơn hàng, doanh thu', count: salesCount, color: '#3B82F6', icon: <ShoppingCart size={32} /> },
-    { id: 'accommodation', name: 'Lưu trú', desc: 'Quản lý phòng, hợp đồng, check-in/out', count: lodgingCount, color: '#10b981', icon: <Hotel size={32} /> },
-    { id: 'both', name: 'Cả hai', desc: 'Kết hợp cả bán hàng và lưu trú', count: bothCount, color: '#f59e0b', icon: <Store size={32} /> },
+    { id: 'sale', label: d?.sale || 'Bán hàng', desc: 'Quản lý sản phẩm, đơn hàng, doanh thu', count: salesCount, color: '#3B82F6', icon: <ShoppingCart size={32} /> },
+    { id: 'accommodation', label: d?.accommodation || 'Lưu trú', desc: 'Quản lý phòng, hợp đồng, check-in/out', count: lodgingCount, color: '#10b981', icon: <Hotel size={32} /> },
+    { id: 'both', label: d?.both || 'Cả hai', desc: 'Kết hợp cả bán hàng và lưu trú', count: bothCount, color: '#f59e0b', icon: <Store size={32} /> },
   ];
 
   // Lọc ra danh sách user thuộc loại hình đang được chọn
@@ -30,7 +30,7 @@ const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.bu
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: colors.text, margin: 0, flex: 1 }}>Danh sách loại hình kinh doanh</h3>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: colors.text, margin: 0, flex: 1 }}>{d?.businessTypes || 'Danh sách loại hình kinh doanh'}</h3>
         <button onClick={() => showToast('Tính năng thêm loại hình đang được phát triển!')} style={{ 
           display: 'flex', alignItems: 'center', gap: 6,
           padding: '8px 16px', 
@@ -60,7 +60,7 @@ const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.bu
               }}
             >
               <div style={{ fontSize: 32, marginBottom: 12, color: bt.color }}>{bt.icon}</div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: colors.text, marginBottom: 6 }}>{bt.name}</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: colors.text, marginBottom: 6 }}>{bt.label}</div>
               <div style={{ fontSize: 13, color: colors.textMuted, marginBottom: 16, lineHeight: 1.6 }}>{bt.desc}</div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: 28, fontWeight: 800, color: bt.color }}>{bt.count}</span>
@@ -83,7 +83,7 @@ const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.bu
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h4 style={{ fontSize: 15, fontWeight: 700, color: colors.text, margin: 0 }}>
-              Danh sách tài khoản: <span style={{ color: types.find(t => t.id === selectedType)?.color }}>{types.find(t => t.id === selectedType)?.name}</span>
+              Danh sách tài khoản: <span style={{ color: types.find(t => t.id === selectedType)?.color }}>{types.find(t => t.id === selectedType)?.label}</span>
             </h4>
             <button onClick={() => setSelectedType(null)} style={{ 
               background: isDark ? '#334155' : '#f1f5f9', border: 'none', color: colors.textMuted, 
@@ -98,7 +98,7 @@ const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.bu
               <table style={{ width: '100%', minWidth: 700, borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
                   <tr>
-                    {['Cửa hàng', 'Họ tên', 'Username', 'Thành phố', 'Trạng thái'].map(h => (
+                    {[d?.shopName||'Cửa hàng', d?.fullName||'Họ tên', d?.username||'Username', d?.city||'Thành phố', d?.status||'Trạng thái'].map(h => (
                       <th key={h} style={{ textAlign: 'left', padding: '10px 12px', color: colors.textMuted, fontWeight: 600, fontSize: 11, borderBottom: `2px solid ${colors.border}` }}>{h.toUpperCase()}</th>
                     ))}
                   </tr>
@@ -111,7 +111,7 @@ const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.bu
                       <td style={{ padding: '12px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>@{u.username}</td>
                       <td style={{ padding: '12px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.city}</td>
                       <td style={{ padding: '12px', borderBottom: `1px solid ${colors.border}` }}>
-                        <span style={badgeStyle(u.status)}>{u.status === 'active' ? 'Hoạt động' : 'Bị khóa'}</span>
+                        <span style={badgeStyle(u.status)}>{u.status === 'active' ? (d?.active || 'Hoạt động') : (d?.locked || 'Bị khóa')}</span>
                       </td>
                     </tr>
                   ))}
@@ -120,7 +120,7 @@ const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.bu
             </div>
           ) : (
             <div style={{ padding: '40px 0', textAlign: 'center', color: colors.textMuted, fontSize: 14 }}>
-              Chưa có tài khoản nào thuộc loại hình này.
+              {d?.noData || 'Chưa có tài khoản nào thuộc loại hình này.'}
             </div>
           )}
         </div>

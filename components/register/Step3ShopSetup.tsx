@@ -1,7 +1,22 @@
+import { useEffect } from 'react';
 import AuthInput from './AuthInput';
 import { BedDouble, ShoppingCart } from 'lucide-react';
 
 export default function Step3ShopSetup({ data, setData, hasLodging, setHasLodging, hasSales, setHasSales, onNext, onBack, loading, r, CITIES, businessTypes }: any) {
+  // ✅ Tự động lấy email từ localStorage khi component mount
+  useEffect(() => {
+    const googleEmail = localStorage.getItem('google_email');
+    if (googleEmail && !data.email) {
+      setData({ ...data, email: googleEmail });
+    }
+  }, []);
+
+  // ✅ Xóa email khi user nhấn nút "Hoàn tất"
+  const handleFinish = () => {
+    localStorage.removeItem('google_email');
+    onNext();
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <AuthInput label={`${r.shopName} *`} placeholder={r.shopNamePh} value={data.name} onChange={e => setData({...data, name: e.target.value})} />
@@ -47,8 +62,8 @@ export default function Step3ShopSetup({ data, setData, hasLodging, setHasLodgin
                 WebkitTextFillColor: isChecked ? '#2563EB' : '#111827',
               }}>
                 {bt.name}
-  </span>
-</span>
+              </span>
+            </span>
           </span>
         </label>
       );
@@ -81,7 +96,7 @@ export default function Step3ShopSetup({ data, setData, hasLodging, setHasLodgin
 
       <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
         <button onClick={onBack} style={{ flex: 1, padding: '14px', background: 'white', color: '#2563EB', border: '2px solid #2563EB', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}>{r.back}</button>
-        <button onClick={onNext} disabled={loading} style={{ flex: 2, padding: '14px', background: loading ? '#C7D2FE' : 'linear-gradient(135deg, #2563EB, #3B82F6)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer' }}>
+        <button onClick={handleFinish} disabled={loading} style={{ flex: 2, padding: '14px', background: loading ? '#C7D2FE' : 'linear-gradient(135deg, #2563EB, #3B82F6)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer' }}>
           {loading ? r.finishing : r.finish}
         </button>
       </div>

@@ -12,16 +12,16 @@ const useIsMobile = () => {
   return isMobile;
 };
 
-export default function Sidebar({ section, setSection, sidebarOpen, setSidebarOpen, colors, isDark }: any) {
+export default function Sidebar({ section, setSection, sidebarOpen, setSidebarOpen, colors, isDark, d }: any) {
   const isMobile = useIsMobile();
 
   const menuItems = [
-    { id: 'dashboard', icon: <LayoutDashboard size={18} />, label: 'Tổng quan' },
-    { id: 'accounts', icon: <Users size={18} />, label: 'Tài khoản' },
-    { id: 'business-types', icon: <Building2 size={18} />, label: 'Loại hình KD' },
-    { id: 'audit-logs', icon: <History size={18} />, label: 'Nhật ký' },
-    { id: 'settings', icon: <Settings size={18} />, label: 'Cài đặt' },
-  ];
+  { id: 'dashboard', icon: <LayoutDashboard size={18} />, label: d?.overview || 'Tổng quan' },
+  { id: 'accounts', icon: <Users size={18} />, label: d?.accounts || 'Tài khoản' },
+  { id: 'business-types', icon: <Building2 size={18} />, label: d?.businessTypes || 'Loại hình KD' },
+  { id: 'audit-logs', icon: <History size={18} />, label: d?.auditLogs || 'Nhật ký' },
+  { id: 'settings', icon: <Settings size={18} />, label: d?.settings || 'Cài đặt' },
+];
 
   // MOBILE — Bottom Navigation
   if (isMobile) {

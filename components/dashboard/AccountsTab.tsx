@@ -21,7 +21,7 @@
   "Thanh Hóa", "Tuyên Quang", "Vĩnh Long", "Nha Trang"
 ];
 
-  export default function AccountsTab({ users, setUsers, onEditUser, showToast, onToggleStatus, colors, isDark }: any) {
+  export default function AccountsTab({ users, setUsers, onEditUser, showToast, onToggleStatus, colors, isDark, d }: any) {
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [businessFilter, setBusinessFilter] = useState('');
@@ -78,7 +78,7 @@
   {/* Ô tìm kiếm */}
   <div style={{ position: 'relative', flex: 1 }}>
     <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: colors.textMuted }} />
-    <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Tìm kiếm tên, username, email..." style={{ width: '100%', padding: '8px 8px 8px 32px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+    <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder={d?.search || 'Tìm kiếm tên, username, email...'} style={{ width: '100%', padding: '8px 8px 8px 32px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
   </div>
 
   {/* Nút lọc */}
@@ -125,9 +125,9 @@
         <div>
           <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 600, display: 'block', marginBottom: 4 }}>TRẠNG THÁI</label>
           <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); }} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>
-            <option value="">Tất cả trạng thái</option>
-            <option value="active">Hoạt động</option>
-            <option value="locked">Bị khóa</option>
+            <option value="">{d?.allStatus || 'Tất cả trạng thái'}</option>
+            <option value="active">{d?.active || 'Hoạt động'}</option>
+            <option value="locked">{d?.locked || 'Bị khóa'}</option>
           </select>
         </div>
 
@@ -135,10 +135,10 @@
         <div>
           <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 600, display: 'block', marginBottom: 4 }}>LOẠI HÌNH</label>
           <select value={businessFilter} onChange={e => { setBusinessFilter(e.target.value); setPage(1); }} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>
-            <option value="">Tất cả loại hình</option>
-            <option value="accommodation">Lưu trú</option>
-            <option value="sale">Bán hàng</option>
-            <option value="both">Cả hai</option>
+            <option value="">{d?.allTypes || 'Tất cả loại hình'}</option>
+            <option value="accommodation">{d?.accommodation || 'Lưu trú'}</option>
+            <option value="sale">{d?.sale || 'Bán hàng'}</option>
+            <option value="both">{d?.both || 'Cả hai'}</option>
           </select>
         </div>
 
@@ -146,7 +146,7 @@
         <div>
           <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 600, display: 'block', marginBottom: 4 }}>TỈNH THÀNH</label>
           <select value={cityFilter} onChange={e => { setCityFilter(e.target.value); setPage(1); }} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>
-            <option value="">Tất cả tỉnh thành</option>
+            <option value="">{d?.allCities || 'Tất cả tỉnh thành'}</option>
             <option value="Chưa cập nhật">Chưa cập nhật</option>
             {VIETNAM_PROVINCES.map((province) => (
               <option key={province} value={province}>{province}</option>
@@ -157,7 +157,7 @@
         {/* Nút xóa bộ lọc */}
         {(statusFilter || businessFilter || cityFilter) && (
           <button onClick={() => { setStatusFilter(''); setBusinessFilter(''); setCityFilter(''); setPage(1); setShowFilter(false); }} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #FECACA', background: '#FEF2F2', color: '#DC2626', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
-            ✕ Xóa bộ lọc
+            ✕ {d?.clearFilter || 'Xóa bộ lọc'}
           </button>
         )}
       </div>
@@ -169,7 +169,7 @@
           <table style={{ width: '100%', minWidth: 800, borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr>
-                {(['Họ tên', ...(isMobile ? [] : ['Username', 'Email']), 'Loại hình', 'Thành phố', 'Trạng thái', 'Thao tác'] as string[]).map(h => (
+                {([d?.fullName||'Họ tên', ...(isMobile ? [] : [d?.username||'Username', d?.email||'Email']), d?.businessType||'Loại hình', d?.city||'Thành phố', d?.status||'Trạng thái', d?.operations||'Thao tác'] as string[]).map(h => (
                 <th key={h} style={{ textAlign: 'left', padding: '8px 10px', color: colors.textMuted, fontWeight: 500, fontSize: 11, borderBottom: `1px solid ${colors.border}`, whiteSpace: 'nowrap' }}>{h}</th>
               ))}
               </tr>
@@ -190,12 +190,12 @@
                     <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}` }}><span style={badgeStyle(u.status)}>{u.status === 'active' ? 'Hoạt động' : 'Bị khóa'}</span></td>
                     <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}` }}>
                       <div style={{ display: 'flex', gap: 6 }}>
-                        <button onClick={() => onEditUser(u)} style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${colors.border}`, background: 'transparent', color: colors.textMuted, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Edit2 size={12} /> Sửa</button>
+                        <button onClick={() => onEditUser(u)} style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${colors.border}`, background: 'transparent', color: colors.textMuted, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Edit2 size={12} /> {d?.edit || 'Sửa'}</button>
                         <button 
                             onClick={() => onToggleStatus(u)} 
                             style={{ padding: '5px 10px', borderRadius: 6, border: 'none', background: u.status === 'active' ? '#fee2e2' : '#dcfce7', color: u.status === 'active' ? '#991b1b' : '#166534', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 }}
                           >
-                            {u.status === 'active' ? <><Lock size={12} /> Khóa</> : <><Unlock size={12} /> Mở khóa</>}
+                            {u.status === 'active' ? <><Lock size={12} /> {d?.lock || 'Khóa'}</> : <><Unlock size={12} /> {d?.unlock || 'Mở khóa'}</>}
                           </button>
                       </div>
                     </td>
@@ -205,7 +205,7 @@
                 // Báo lỗi khi lọc không ra ai
                 <tr>
                   <td colSpan={isMobile ? 5 : 7} style={{ textAlign: 'center', padding: '30px', color: colors.textMuted, fontStyle: 'italic' }}>
-                    Không tìm thấy tài khoản nào khớp với bộ lọc của bạn.
+                    {d?.noData || 'Không tìm thấy tài khoản nào'}
                   </td>
                 </tr>
               )}
@@ -214,7 +214,7 @@
 
           {/* PHÂN TRANG */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14, fontSize: 12, color: colors.textMuted }}>
-  <span>Trang {page}/{totalPages} — {filtered.length} tài khoản</span>
+  <span>{d?.page || 'Trang'} {page}/{totalPages} — {filtered.length} {d?.accounts_count || 'tài khoản'}</span>
   <div style={{ display: 'flex', gap: 4 }}>
     {/* Nút Trước */}
     <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${colors.border}`, background: 'transparent', color: colors.textMuted, cursor: page === 1 ? 'not-allowed' : 'pointer', opacity: page === 1 ? 0.4 : 1 }}>‹</button>
