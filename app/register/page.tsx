@@ -186,11 +186,18 @@ useEffect(() => {
     localStorage.setItem('register_step1', JSON.stringify(step1));
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:3001/api/auth/pre-register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: step1.email }) });
-      if (!res.ok) { setError(r.errServerRegister); setLoading(false); return; }
+      const res = await fetch('http://localhost:3001/api/auth/pre-register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: step1.email, username: step1.username }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.message || r.errServerRegister);
+        setLoading(false);
+        return;
+      }
       markStepCompleted(1);
       startCooldown(); setLoading(false); goTransition(2);
-    } catch { setError(r.errConnect); setLoading(false); }
+    } catch {
+      setError(r.errConnect); setLoading(false);
+    }
   };
   
 
