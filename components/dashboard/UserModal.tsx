@@ -41,7 +41,7 @@ export default function UserModal({ showModal, setShowModal, editUser, setEditUs
             </div>
           ))}
 
-          {/* 2. 👉 DANH SÁCH CHỌN THÀNH PHỐ Ở ĐÂY */}
+          {/* 2.  DANH SÁCH CHỌN THÀNH PHỐ Ở ĐÂY */}
           <div>
             <label style={{ fontSize: 12, color: colors.textMuted, display: 'block', marginBottom: 5 }}>Thành phố</label>
             <select value={editUser?.city || ''} onChange={e => setEditUser((p:any) => ({ ...p, city: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}>

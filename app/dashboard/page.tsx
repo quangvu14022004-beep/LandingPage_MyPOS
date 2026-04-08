@@ -188,13 +188,30 @@ export default function DashboardPage() {
   const bothUsers = users.filter(u => Array.isArray(u.businessType) && u.businessType.includes('accommodation') && u.businessType.includes('sale')).length;
   
   const currentYear = new Date().getFullYear();
-  const MONTHLY_DATA = Array.from({ length: 12 }, (_, i) =>
-    users.filter(u => {
-      if (!u.createdAt) return false;
-      const d = new Date(u.createdAt);
-      return d.getFullYear() === currentYear && d.getMonth() === i;
-    }).length
-  );
+    const [selectedYear, setSelectedYear] = useState(currentYear);
+
+    // Lấy tất cả các năm có user, sắp xếp mới nhất lên đầu
+    const availableYears = Array.from(
+      new Set(
+        users
+          .map(u => u.createdAt ? new Date(u.createdAt).getFullYear() : null)
+          .filter(Boolean)
+      )
+    ).sort((a: any, b: any) => b - a) as number[];
+
+    // Đảm bảo năm hiện tại luôn có trong danh sách
+    if (!availableYears.includes(currentYear)) {
+      availableYears.unshift(currentYear);
+    }
+
+    // MONTHLY_DATA giờ tính theo selectedYear thay vì currentYear
+    const MONTHLY_DATA = Array.from({ length: 12 }, (_, i) =>
+      users.filter(u => {
+        if (!u.createdAt) return false;
+        const d = new Date(u.createdAt);
+        return d.getFullYear() === selectedYear && d.getMonth() === i;
+      }).length
+    );
   const MONTHS = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
   const maxBar = Math.max(...MONTHLY_DATA, 1);
 
@@ -243,12 +260,15 @@ export default function DashboardPage() {
           
           {section === 'dashboard' && (
             <OverviewTab 
-              totalUsers={totalUsers} activeUsers={activeUsers} lockedUsers={lockedUsers}
-              salesUsers={salesUsers} lodgingUsers={lodgingUsers} bothUsers={bothUsers}
-              MONTHLY_DATA={MONTHLY_DATA} MONTHS={MONTHS} maxBar={maxBar}
-              users={users} colors={colors} isDark={isDark} badgeStyle={badgeStyle}
-              d={d}
-            />
+            totalUsers={totalUsers} activeUsers={activeUsers} lockedUsers={lockedUsers}
+            salesUsers={salesUsers} lodgingUsers={lodgingUsers} bothUsers={bothUsers}
+            MONTHLY_DATA={MONTHLY_DATA} MONTHS={MONTHS} maxBar={maxBar}
+            users={users} colors={colors} isDark={isDark} badgeStyle={badgeStyle}
+            d={d}
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
+            availableYears={availableYears}
+          />
           )}
 
           {section === 'accounts' && (

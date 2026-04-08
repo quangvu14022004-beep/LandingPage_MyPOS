@@ -29,7 +29,7 @@
     const [page, setPage] = useState(1);
     const [showFilter, setShowFilter] = useState(false);
     const isMobile = useIsMobile();
-    const PER_PAGE = 7;
+    const PER_PAGE = 10;
 
     // ==========================================
     // LOGIC LỌC DỮ LIỆU (Đã tối ưu cực kỳ an toàn)

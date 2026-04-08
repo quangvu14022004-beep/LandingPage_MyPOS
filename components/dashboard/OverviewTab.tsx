@@ -103,7 +103,8 @@ function LineChart({ data, months, isDark, colors }: any) {
 }
 export default function OverviewTab({
   totalUsers, activeUsers, lockedUsers, salesUsers, lodgingUsers, bothUsers,
-  MONTHLY_DATA, MONTHS, maxBar, users, colors, isDark, badgeStyle, d
+  MONTHLY_DATA, MONTHS, maxBar, users, colors, isDark, badgeStyle, d,
+  selectedYear, setSelectedYear, availableYears
 }: any) {
   // State để theo dõi xem chuột đang rê vào thẻ nào (0, 1, 2, 3)
   const [hoverCard, setHoverCard] = useState<number | null>(null);
@@ -166,9 +167,36 @@ export default function OverviewTab({
       {/* 2 Biểu đồ */}
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
         <div style={{ background: colors.card, borderRadius: 14, padding: 20, border: `1px solid ${colors.border}` }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: colors.text }}>{d?.newUsersChart || 'Người dùng mới theo tháng'}</div>
-          <LineChart data={MONTHLY_DATA} months={MONTHS} isDark={isDark} colors={colors} />
-        </div>
+  
+  {/* Header có tiêu đề + dropdown năm */}
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+    <div style={{ fontSize: 14, fontWeight: 600, color: colors.text }}>
+      {d?.newUsersChart || 'Người dùng mới theo tháng'}
+    </div>
+        
+    <select
+      value={selectedYear}
+      onChange={e => setSelectedYear(Number(e.target.value))}
+      style={{
+        background: isDark ? '#1C1F2E' : '#F1F5F9',
+        color: colors.text,
+        border: `1px solid ${colors.border}`,
+        borderRadius: 8,
+        padding: '4px 10px',
+        fontSize: 12,
+        fontWeight: 600,
+        cursor: 'pointer',
+        outline: 'none',
+      }}
+    >
+      {availableYears?.map((y: number) => (
+        <option key={y} value={y}>{y}</option>
+      ))}
+    </select>
+  </div>
+
+  <LineChart data={MONTHLY_DATA} months={MONTHS} isDark={isDark} colors={colors} />
+</div>
 
         <div style={{ background: colors.card, borderRadius: 14, padding: 20, border: `1px solid ${colors.border}` }}>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: colors.text }}>{d?.businessTypeChart || 'Loại hình KD'}</div>
