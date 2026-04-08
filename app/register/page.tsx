@@ -5,6 +5,16 @@ import { useLang } from '@/lib/LanguageContext';
 import * as bcrypt from 'bcryptjs';
 import { AlertTriangle } from 'lucide-react';
 
+// Import validation functions
+import {
+  validateEmail,
+  validatePhone,
+  validatePassword,
+  validateUsername,
+  validateFullName,
+  validateOTP,
+  validateAddress,
+} from '@/lib/validations';
 
 // Import Component đã tách
 import FullScreenLoader from '@/components/register/FullScreenLoader';
@@ -30,6 +40,9 @@ export default function RegisterPage() {
   const [transitioning, setTransitioning] = useState(false);
   const [error, setError] = useState('');
   const [resendCooldown, setResendCooldown] = useState(0);
+  
+  // Track completed steps for sequential validation
+  const [completedSteps, setCompletedSteps] = useState<{ step1: boolean; step2: boolean }>({ step1: false, step2: false });
 
   const verifiedTokenRef = useRef<string>('');
   const accessTokenRef = useRef<string>('');
@@ -43,7 +56,15 @@ export default function RegisterPage() {
   // Load cache
   useEffect(() => {
     const raw = localStorage.getItem('register_step1');
-    if (raw) { try { setStep1(JSON.parse(raw)); } catch (e) { console.error(e); } }
+    if (raw) { try { setStep1(JSON.parse(raw)); setCompletedSteps(prev => ({ ...prev, step1: true })); } catch (e) { console.error(e); } }
+    
+    // Load completed steps from localStorage
+    const completedRaw = localStorage.getItem('register_completed_steps');
+    if (completedRaw) { 
+      try { 
+        setCompletedSteps(JSON.parse(completedRaw)); 
+      } catch (e) { console.error(e); } 
+    }
   }, []);
   // Fetch danh sách businessTypes từ API
 useEffect(() => {
@@ -67,8 +88,11 @@ useEffect(() => {
   }
 
   // Nếu đã có token + step=3 + provider=google → nhảy thẳng vào Step 3
+  // Google OAuth automatically completes step 1 & 2
   if (stepParam === '3' && provider === 'google' && token) {
     accessTokenRef.current = token;
+    markStepCompleted(1);
+    markStepCompleted(2);
     setStep(3);
     window.history.replaceState({}, '', '/register');
   }
@@ -86,18 +110,85 @@ useEffect(() => {
     setTimeout(() => { setTransitioning(false); setStep(nextStep); }, 1000);
   };
 
+  // Helper: Check if user can access a specific step
+  const canAccessStep = (targetStep: 1 | 2 | 3): boolean => {
+    if (targetStep === 1) return true; // Always can access step 1
+    if (targetStep === 2) return completedSteps.step1; // Can access step 2 only if step 1 is completed
+    if (targetStep === 3) return completedSteps.step1 && completedSteps.step2; // Can access step 3 only if both step 1 & 2 are completed
+    return false;
+  };
+
+  // Helper: Mark a step as completed
+  const markStepCompleted = (stepNum: 1 | 2) => {
+    const updated = { ...completedSteps };
+    if (stepNum === 1) updated.step1 = true;
+    if (stepNum === 2) updated.step2 = true;
+    setCompletedSteps(updated);
+    localStorage.setItem('register_completed_steps', JSON.stringify(updated));
+  };
+
+  // Helper: Reset all completed steps (for starting over)
+  const resetRegistration = () => {
+    setCompletedSteps({ step1: false, step2: false });
+    setStep1({ username: '', password: '', confirmPassword: '', fullName: '', email: '', phone: '' });
+    setStep2({ otpCode: '' });
+    localStorage.removeItem('register_completed_steps');
+    localStorage.removeItem('register_step1');
+    setStep(1);
+  };
+
   // Các hàm Call API giữ nguyên nội dung
   const handleStep1 = async () => {
     setError('');
-    if (!step1.username || !step1.password || !step1.fullName || !step1.email) return setError(r.errRequired);
-    if (step1.password !== step1.confirmPassword) return setError(r.errPassMatch);
-    if (step1.password.length < 6) return setError(r.errPassLen);
     
+    // Validate required fields
+    if (!step1.username || !step1.password || !step1.fullName || !step1.email) {
+      return setError(r.errRequired);
+    }
+
+    // Validate fullName
+    const fullNameValidation = validateFullName(step1.fullName);
+    if (!fullNameValidation.valid) {
+      return setError(fullNameValidation.error!);
+    }
+
+    // Validate username
+    const usernameValidation = validateUsername(step1.username);
+    if (!usernameValidation.valid) {
+      return setError(usernameValidation.error!);
+    }
+
+    // Validate email
+    const emailValidation = validateEmail(step1.email);
+    if (!emailValidation.valid) {
+      return setError(emailValidation.error!);
+    }
+
+    // Validate phone (optional but if provided, must be valid)
+    if (step1.phone) {
+      const phoneValidation = validatePhone(step1.phone);
+      if (!phoneValidation.valid) {
+        return setError(phoneValidation.error!);
+      }
+    }
+
+    // Validate password
+    const passwordValidation = validatePassword(step1.password);
+    if (!passwordValidation.valid) {
+      return setError(passwordValidation.errors.join('\n'));
+    }
+
+    // Check password match
+    if (step1.password !== step1.confirmPassword) {
+      return setError(r.errPassMatch);
+    }
+
     localStorage.setItem('register_step1', JSON.stringify(step1));
     setLoading(true);
     try {
       const res = await fetch('http://localhost:3001/api/auth/pre-register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: step1.email }) });
       if (!res.ok) { setError(r.errServerRegister); setLoading(false); return; }
+      markStepCompleted(1);
       startCooldown(); setLoading(false); goTransition(2);
     } catch { setError(r.errConnect); setLoading(false); }
   };
@@ -105,7 +196,13 @@ useEffect(() => {
 
   const handleStep2 = async () => {
     setError('');
-    if (!step2.otpCode || step2.otpCode.length !== 6) return setError('Vui lòng nhập mã OTP 6 số');
+    
+    // Validate OTP
+    const otpValidation = validateOTP(step2.otpCode);
+    if (!otpValidation.valid) {
+      return setError(otpValidation.error!);
+    }
+    
     setLoading(true);
     try {
       const resOtp = await fetch('http://localhost:3001/api/auth/verify-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: step1.email, otpCode: step2.otpCode }) });
@@ -124,6 +221,7 @@ useEffect(() => {
 
       accessTokenRef.current = dataReg.access_token || dataReg.token;
       setStep3(prev => ({ ...prev, ownerName: step1.fullName, email: step1.email, phone: step1.phone }));
+      markStepCompleted(2);
       setLoading(false); goTransition(3);
     } catch { setError(r.errConnect); setLoading(false); }
   };
@@ -132,25 +230,37 @@ useEffect(() => {
     setError('');
     if (!step3.name || !step3.address || !step3.city || (!hasLodging && !hasSales)) return setError(r.errRequired);
     
+    // Validate address
+    const addressValidation = validateAddress(step3.address);
+    if (!addressValidation.valid) {
+      return setError(addressValidation.error!);
+    }
+
+    // Validate shop name
+    if (step3.name.length < 2) {
+      return setError('Tên cửa hàng phải có ít nhất 2 ký tự');
+    }
+    if (step3.name.length > 100) {
+      return setError('Tên cửa hàng tối đa 100 ký tự');
+    }
+    
     const finalBusinessType: string[] = [];
     if (hasLodging) finalBusinessType.push('accommodation');
     if (hasSales) finalBusinessType.push('sale');
     
     setLoading(true);
     try {
-      //  Xóa /v1 đi, nhưng THÊM Authorization chứa Token vào headers
       const res = await fetch('http://localhost:3001/api/auth/shop/setup', {
         method: 'POST', 
         headers: { 
           'Content-Type': 'application/json', 
-          'Authorization': `Bearer ${accessTokenRef.current}` // 🔑 Chìa khóa ở đây!
+          'Authorization': `Bearer ${accessTokenRef.current}`
         },
         body: JSON.stringify({ ...step3, businessType: finalBusinessType }),
       });
       
       const data = await res.json();
       
-      // Kiểm tra nếu lỗi 401 (hoặc lỗi khác)
       if (!res.ok) { 
         setError(data.message || 'Lỗi khi tạo cửa hàng!'); 
         setLoading(false);
@@ -190,10 +300,21 @@ useEffect(() => {
 
         {error && <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '10px', padding: '12px 16px', color: '#DC2626', fontSize: '14px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}><AlertTriangle size={16} />{error}</div>}
 
+        {/* Route Guards - Show error if user tries to skip steps */}
+        {!canAccessStep(step) && (
+          <div style={{ background: '#FEF3F2', border: '1px solid #FCA5A5', borderRadius: '10px', padding: '16px', color: '#DC2626', fontSize: '14px', marginBottom: '20px', textAlign: 'center' }}>
+            <AlertTriangle size={20} style={{ marginBottom: '8px' }} />
+            <p style={{ margin: '8px 0 0 0', fontWeight: '600' }}>⚠️ Bạn phải hoàn thành bước trước để tiếp tục!</p>
+            <button onClick={() => { setStep(1); setError(''); }} style={{ marginTop: '12px', background: '#DC2626', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>
+              Quay lại Bước 1
+            </button>
+          </div>
+        )}
+
         {/* Các Component Form */}
-        {step === 1 && <Step1Account data={step1} setData={setStep1} onNext={handleStep1} loading={loading} r={r} />}
-        {step === 2 && <Step2OTP data={step2} setData={setStep2} onNext={handleStep2} onBack={() => { setStep(1); setError(''); }} resendOTP={handleStep1} resendCooldown={resendCooldown} loading={loading} r={r} email={step1.email} />}
-        {step === 3 && <Step3ShopSetup data={step3} setData={setStep3} hasLodging={hasLodging} setHasLodging={setHasLodging} hasSales={hasSales} setHasSales={setHasSales} onNext={handleStep3} onBack={() => { setStep(2); setError(''); }} loading={loading} r={r} CITIES={CITIES} businessTypes={businessTypes} />}
+        {step === 1 && canAccessStep(1) && <Step1Account data={step1} setData={setStep1} onNext={handleStep1} loading={loading} r={r} />}
+        {step === 2 && canAccessStep(2) && <Step2OTP data={step2} setData={setStep2} onNext={handleStep2} onBack={() => { setStep(1); setError(''); }} resendOTP={handleStep1} resendCooldown={resendCooldown} loading={loading} r={r} email={step1.email} />}
+        {step === 3 && canAccessStep(3) && <Step3ShopSetup data={step3} setData={setStep3} hasLodging={hasLodging} setHasLodging={setHasLodging} hasSales={hasSales} setHasSales={setHasSales} onNext={handleStep3} onBack={() => { setStep(2); setError(''); }} loading={loading} r={r} CITIES={CITIES} businessTypes={businessTypes} />}
         
       </div>
     </div>

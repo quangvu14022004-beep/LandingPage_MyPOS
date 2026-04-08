@@ -4,6 +4,14 @@ import { useState, useRef } from 'react';
 import * as bcrypt from 'bcryptjs';
 import { KeyRound, AlertTriangle } from 'lucide-react';
 
+// Import validation functions
+import {
+  validatePassword,
+  validateOTP,
+  validateEmail,
+  validateUsername,
+} from '@/lib/validations';
+
 // Import Components (Hãy kiểm tra lại đường dẫn xem đã khớp với dự án của bạn chưa nhé)
 import FullScreenLoader from '@/components/register/FullScreenLoader'; 
 import StepIndicator from '@/components/register/StepIndicator';       
@@ -44,8 +52,26 @@ export default function ForgotPasswordPage() {
   const handleStep1 = async () => {
     setError('');
     if (!usernameOrEmail.trim()) {
-      setError('Vui lòng nhập username hoặc email'); return;
+      setError('Vui lòng nhập username hoặc email'); 
+      return;
     }
+
+    // Check if it's email format or username
+    const isEmail = usernameOrEmail.includes('@');
+    if (isEmail) {
+      const emailValidation = validateEmail(usernameOrEmail);
+      if (!emailValidation.valid) {
+        setError(emailValidation.error!);
+        return;
+      }
+    } else {
+      const usernameValidation = validateUsername(usernameOrEmail);
+      if (!usernameValidation.valid) {
+        setError(usernameValidation.error!);
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const res = await fetch('http://localhost:3001/api/auth/forgot-password/send-otp', {
@@ -69,9 +95,13 @@ export default function ForgotPasswordPage() {
   // ── Bước 2: Xác nhận OTP → gọi API kiểm tra trước khi qua bước 3 ──
   const handleStep2 = async () => {
     setError('');
-    if (!otpCode || otpCode.length !== 6) {
-      setError('Vui lòng nhập mã OTP 6 số'); return;
+    
+    const otpValidation = validateOTP(otpCode);
+    if (!otpValidation.valid) {
+      setError(otpValidation.error!);
+      return;
     }
+
     setLoading(true);
     try {
       const res = await fetch('http://localhost:3001/api/auth/forgot-password/verify-otp', {
@@ -96,14 +126,22 @@ export default function ForgotPasswordPage() {
   const handleStep3 = async () => {
     setError('');
     if (!newPassword || !confirmPassword) {
-      setError('Vui lòng nhập đầy đủ thông tin'); return;
+      setError('Vui lòng nhập đầy đủ thông tin'); 
+      return;
     }
-    if (newPassword.length < 6) {
-      setError('Mật khẩu mới phải có ít nhất 6 ký tự'); return;
+
+    // Validate password
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.valid) {
+      setError(passwordValidation.errors.join('\n'));
+      return;
     }
+
     if (newPassword !== confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp'); return;
+      setError('Mật khẩu xác nhận không khớp'); 
+      return;
     }
+
     setLoading(true);
     try {
       const hashedNewPassword = await bcrypt.hash(newPassword, 10);

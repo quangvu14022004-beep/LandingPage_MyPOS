@@ -4,6 +4,11 @@ import { useState } from 'react';
 import * as bcrypt from 'bcryptjs';
 import { KeyRound, CheckCircle, AlertTriangle } from 'lucide-react';
 
+// Import validation functions
+import {
+  validatePassword,
+} from '@/lib/validations';
+
 // Import các Components (Điều chỉnh đường dẫn cho phù hợp thư mục của bạn)
 import FullScreenLoader from '@/components/register/FullScreenLoader';
 import StepIndicator from '@/components/register/StepIndicator';
@@ -54,16 +59,24 @@ export default function ChangePasswordPage() {
   const handleStep2 = async () => {
     setError('');
     if (!newPassword || !confirmPassword) {
-      setError('Vui lòng nhập đầy đủ thông tin'); return;
+      setError('Vui lòng nhập đầy đủ thông tin'); 
+      return;
     }
-    if (newPassword.length < 6) {
-      setError('Mật khẩu mới phải có ít nhất 6 ký tự'); return;
+
+    // Validate password
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.valid) {
+      setError(passwordValidation.errors.join('\n'));
+      return;
     }
+
     if (newPassword !== confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp'); return;
+      setError('Mật khẩu xác nhận không khớp'); 
+      return;
     }
     if (oldPassword === newPassword) {
-      setError('Mật khẩu mới không được trùng với mật khẩu cũ'); return;
+      setError('Mật khẩu mới không được trùng với mật khẩu cũ'); 
+      return;
     }
     setLoading(true);
     try {
