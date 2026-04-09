@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Store, ShoppingCart, Hotel, Plus, X } from 'lucide-react';
+import { Store, ShoppingCart, Hotel, Plus, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
+const PAGE_SIZE = 5;
 export default function BusinessTypesTab({ users, colors, isDark, badgeStyle, showToast, d }: any) {
   // State lưu loại hình đang được click chọn ('bán hàng', 'lưu trú', hoặc 'lưu trú/bán hàng')
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const totalUsers = users.length;
   // Tính toán số lượng cho từng loại
@@ -18,13 +20,35 @@ const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.bu
   ];
 
   // Lọc ra danh sách user thuộc loại hình đang được chọn
-  const displayedUsers = selectedType ? users.filter((u: any) => {
-  if (!Array.isArray(u.businessType)) return false;
-  if (selectedType === 'sale') return u.businessType.includes('sale') && u.businessType.length === 1;
-  if (selectedType === 'accommodation') return u.businessType.includes('accommodation') && u.businessType.length === 1;
-  if (selectedType === 'both') return u.businessType.includes('accommodation') && u.businessType.includes('sale');
-  return false;
-}) : [];
+  const getFilteredUsers = (typeId: string) =>
+  users.filter((u: any) => {
+    if (!Array.isArray(u.businessType)) return false;
+    if (typeId === 'sale') return u.businessType.includes('sale') && u.businessType.length === 1;
+    if (typeId === 'accommodation') return u.businessType.includes('accommodation') && u.businessType.length === 1;
+    if (typeId === 'both') return u.businessType.includes('accommodation') && u.businessType.includes('sale');
+    return false;
+  });
+
+const allFiltered = selectedType ? getFilteredUsers(selectedType) : [];
+const totalPages = Math.ceil(allFiltered.length / PAGE_SIZE);
+const pagedUsers = allFiltered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+const selectedTypeInfo = types.find(t => t.id === selectedType);
+
+const getPageNumbers = (): (number | '...')[] => {
+  if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
+  if (currentPage <= 3) return [1, 2, 3, 4, '...', totalPages];
+  if (currentPage >= totalPages - 2) return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+  return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+};
+
+const btnBase: React.CSSProperties = {
+  width: 32, height: 32, borderRadius: 8,
+  border: `1px solid ${colors.border}`,
+  background: colors.card,
+  color: colors.text,
+  display: 'flex', alignItems: 'center', justifyContent: 'center',
+  cursor: 'pointer', transition: 'all 0.2s', fontSize: 13,
+};
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -50,7 +74,14 @@ const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.bu
           return (
             <div 
               key={bt.id} 
-              onClick={() => setSelectedType(isSelected ? null : bt.id)} // Click lại để bỏ chọn
+              onClick={() => {
+              if (isSelected) {
+                setSelectedType(null);
+              } else {
+                setSelectedType(bt.id);
+                setCurrentPage(1);
+              }
+            }}
               style={{ 
                 background: colors.card, borderRadius: 14, padding: 24, 
                 border: isSelected ? `2px solid ${bt.color}` : `2px solid ${colors.border}`, 
@@ -83,8 +114,12 @@ const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.bu
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h4 style={{ fontSize: 15, fontWeight: 700, color: colors.text, margin: 0 }}>
-              Danh sách tài khoản: <span style={{ color: types.find(t => t.id === selectedType)?.color }}>{types.find(t => t.id === selectedType)?.label}</span>
-            </h4>
+            Danh sách tài khoản:{' '}
+            <span style={{ color: selectedTypeInfo?.color }}>{selectedTypeInfo?.label}</span>
+            <span style={{ fontSize: 13, fontWeight: 400, color: colors.textMuted, marginLeft: 8 }}>
+              ({allFiltered.length} cửa hàng)
+            </span>
+          </h4>
             <button onClick={() => setSelectedType(null)} style={{ 
               background: isDark ? '#334155' : '#f1f5f9', border: 'none', color: colors.textMuted, 
               width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' 
@@ -93,7 +128,8 @@ const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.bu
             </button>
           </div>
           
-          {displayedUsers.length > 0 ? (
+          {pagedUsers.length > 0 ? (
+            <>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', minWidth: 700, borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
@@ -104,7 +140,7 @@ const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.bu
                   </tr>
                 </thead>
                 <tbody>
-                  {displayedUsers.map((u: any) => (
+                  {pagedUsers.map((u: any) => (
                     <tr key={u.id} style={{ transition: 'background 0.2s' }}>
                       <td style={{ padding: '12px', borderBottom: `1px solid ${colors.border}`, color: colors.text, fontWeight: 700 }}>{u.shopName || 'Chưa cập nhật'}</td>
                       <td style={{ padding: '12px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.fullName}</td>
@@ -118,6 +154,52 @@ const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.bu
                 </tbody>
               </table>
             </div>
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, flexWrap: 'wrap', gap: 8 }}>
+                <span style={{ fontSize: 13, color: colors.textMuted }}>
+                  Hiển thị {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, allFiltered.length)} / {allFiltered.length} cửa hàng
+                </span>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    style={{ ...btnBase, opacity: currentPage === 1 ? 0.4 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+                  >
+                    <ChevronLeft size={14} />
+                  </button>
+
+                  {getPageNumbers().map((page, idx) =>
+                    page === '...' ? (
+                      <span key={`dot-${idx}`} style={{ width: 32, textAlign: 'center', color: colors.textMuted, fontSize: 13 }}>…</span>
+                    ) : (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page as number)}
+                        style={{
+                          ...btnBase,
+                          border: currentPage === page ? 'none' : `1px solid ${colors.border}`,
+                          background: currentPage === page ? selectedTypeInfo?.color : colors.card,
+                          color: currentPage === page ? '#fff' : colors.text,
+                          fontWeight: currentPage === page ? 700 : 400,
+                        }}
+                      >
+                        {page}
+                      </button>
+                    )
+                  )}
+
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    style={{ ...btnBase, opacity: currentPage === totalPages ? 0.4 : 1, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
+                  >
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
+             </>
           ) : (
             <div style={{ padding: '40px 0', textAlign: 'center', color: colors.textMuted, fontSize: 14 }}>
               {d?.noData || 'Chưa có tài khoản nào thuộc loại hình này.'}
