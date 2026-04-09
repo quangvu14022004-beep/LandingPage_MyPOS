@@ -211,7 +211,7 @@ export default function AuditLogsTab({ colors, isDark,d }: any) {
 
         {/* PHÂN TRANG */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14, fontSize: 12, color: colors.textMuted }}>
-          <span>{d?.page || 'Trang'} {meta.page}/{meta.total_pages || 1} — {meta.total || 0} {d?.auditLogs || 'nhật ký'}</span>
+          <span>{d?.page || 'Trang'} {meta.page}/{meta.total_pages || 1} </span>
           <div style={{ display: 'flex', gap: 4 }}>
             <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${colors.border}`, background: 'transparent', color: colors.textMuted, cursor: page === 1 ? 'not-allowed' : 'pointer', opacity: page === 1 ? 0.4 : 1 }}>‹</button>
             {Array.from({ length: meta.total_pages || 1 }, (_, i) => i + 1).map(p => (

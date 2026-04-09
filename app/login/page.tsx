@@ -42,21 +42,7 @@ export default function SuperAdminLogin() {
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '24px',
     }}>
-      {/* Nút về home */}
-      <button onClick={() => window.location.href = '/home'} style={{
-        position: 'fixed', top: '20px', left: '20px',
-        background: 'rgba(255,255,255,0.1)', border: '1px solid #334155',
-        borderRadius: '12px', padding: '8px 16px',
-        display: 'flex', alignItems: 'center', gap: '8px',
-        cursor: 'pointer', fontSize: '14px', fontWeight: '600',
-        color: '#94A3B8', transition: 'all 0.2s ease', zIndex: 100,
-      }}
-        onMouseEnter={e => (e.currentTarget.style.transform = 'translateX(-3px)')}
-        onMouseLeave={e => (e.currentTarget.style.transform = 'translateX(0)')}
-      >
-        ← Trang chủ
-      </button>
-
+      
       <div style={{
         background: '#1E293B', borderRadius: '24px',
         padding: '48px 40px', width: '100%', maxWidth: '420px',

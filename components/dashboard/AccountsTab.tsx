@@ -214,7 +214,7 @@
 
           {/* PHÂN TRANG */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14, fontSize: 12, color: colors.textMuted }}>
-  <span>{d?.page || 'Trang'} {page}/{totalPages} — {filtered.length} {d?.accounts_count || 'tài khoản'}</span>
+  <span>{d?.page || 'Trang'} {page}/{totalPages}</span>
   <div style={{ display: 'flex', gap: 4 }}>
     {/* Nút Trước */}
     <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${colors.border}`, background: 'transparent', color: colors.textMuted, cursor: page === 1 ? 'not-allowed' : 'pointer', opacity: page === 1 ? 0.4 : 1 }}>‹</button>
