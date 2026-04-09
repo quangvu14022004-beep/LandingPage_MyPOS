@@ -323,17 +323,12 @@ export default function Navbar() {
           ))}
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '12px', padding: '0 4px' }}>
-            <Link href="/login" target="_blank" rel="noopener noreferrer" style={{ flex: 1 }} onClick={() => setMobileOpen(false)}>
-              <button className="btn-login" style={{ width: '100%', padding: '12px', fontSize: '14px' }}>
-                {t.nav.login}
-              </button>
-            </Link>
-            <Link href="/register" target="_blank" rel="noopener noreferrer" style={{ flex: 1 }} onClick={() => setMobileOpen(false)}>
-              <button className="btn-primary" style={{ width: '100%', padding: '12px', fontSize: '14px' }}>
-                {t.nav.register}
-              </button>
-            </Link>
-          </div>
+  <Link href="/register" target="_blank" rel="noopener noreferrer" style={{ flex: 1 }} onClick={() => setMobileOpen(false)}>
+    <button className="btn-primary" style={{ width: '100%', padding: '12px', fontSize: '14px' }}>
+      {t.nav.register}
+    </button>
+  </Link>
+</div>
         </div>
       )}
     </nav>

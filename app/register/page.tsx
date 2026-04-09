@@ -91,8 +91,9 @@ useEffect(() => {
   // Google OAuth automatically completes step 1 & 2
   if (stepParam === '3' && provider === 'google' && token) {
     accessTokenRef.current = token;
-    markStepCompleted(1);
-    markStepCompleted(2);
+    const googleCompleted = { step1: true, step2: true };
+    setCompletedSteps(googleCompleted);
+    localStorage.setItem('register_completed_steps', JSON.stringify(googleCompleted));
     setStep(3);
     window.history.replaceState({}, '', '/register');
   }
@@ -250,6 +251,30 @@ useEffect(() => {
     if (step3.name.length > 100) {
       return setError('Tên cửa hàng tối đa 100 ký tự');
     }
+
+    // Validate số điện thoại cửa hàng 
+    if (step3.phone) {
+      const phoneValidation = validatePhone(step3.phone);
+      if (!phoneValidation.valid) {
+        return setError(phoneValidation.error!);
+      }
+    }
+
+    // Validate email cửa hàng 
+    if (step3.email) {
+      const emailValidation = validateEmail(step3.email);
+      if (!emailValidation.valid) {
+        return setError(emailValidation.error!);
+      }
+    }
+
+    // Validate tên chủ cửa hàng
+    if (step3.ownerName) {
+      const ownerNameValidation = validateFullName(step3.ownerName);
+      if (!ownerNameValidation.valid) {
+        return setError(ownerNameValidation.error!);
+      }
+    }
     
     const finalBusinessType: string[] = [];
     if (hasLodging) finalBusinessType.push('accommodation');
@@ -287,12 +312,18 @@ useEffect(() => {
   const stepDescs = [r.step1Desc, `Nhập mã OTP đã gửi đến ${step1.email}`, r.step2Desc];
 
   return (
+  <>
+    <div style={{
+      position: 'fixed',
+      top: '16px',
+      left: '16px',
+      zIndex: 10001,
+    }}>
+    </div>
+
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', fontFamily: 'sans-serif' }}>
       
       {transitioning && <FullScreenLoader text={r.verifying} />}
-
-      {/* Nút về home & Đổi ngôn ngữ (Bạn có thể tách thành RegisterHeader.tsx nếu muốn) */}
-      <button onClick={() => window.location.href = '/home'} style={{ position: 'fixed', top: '20px', left: '20px', background: 'white', border: '2px solid #DBEAFE', borderRadius: '12px', padding: '8px 16px', color: '#2563EB', fontWeight: '600', cursor: 'pointer' }}>← Trang chủ</button>
 
       <div style={{ background: 'white', borderRadius: '24px', padding: '40px', width: '100%', maxWidth: '520px', boxShadow: '0 24px 64px rgba(37,99,235,0.15)' }}>
         
@@ -325,5 +356,6 @@ useEffect(() => {
         
       </div>
     </div>
+    </> 
   );
 }

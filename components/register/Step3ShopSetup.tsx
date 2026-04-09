@@ -3,7 +3,7 @@ import AuthInput from './AuthInput';
 import { BedDouble, ShoppingCart } from 'lucide-react';
 
 export default function Step3ShopSetup({ data, setData, hasLodging, setHasLodging, hasSales, setHasSales, onNext, onBack, loading, r, CITIES, businessTypes }: any) {
-  // ✅ Tự động lấy email từ localStorage khi component mount
+  //  Tự động lấy email từ localStorage khi component mount
   useEffect(() => {
     const googleEmail = localStorage.getItem('google_email');
     if (googleEmail && !data.email) {
@@ -11,7 +11,7 @@ export default function Step3ShopSetup({ data, setData, hasLodging, setHasLodgin
     }
   }, []);
 
-  // ✅ Xóa email khi user nhấn nút "Hoàn tất"
+  //  Xóa email khi user nhấn nút "Hoàn tất"
   const handleFinish = () => {
     localStorage.removeItem('google_email');
     onNext();
@@ -94,9 +94,8 @@ export default function Step3ShopSetup({ data, setData, hasLodging, setHasLodgin
         <AuthInput label={r.taxCode} placeholder={r.taxCodePh} value={data.taxCode} onChange={e => setData({...data, taxCode: e.target.value})} />
       </div>
 
-      <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
-        <button onClick={onBack} style={{ flex: 1, padding: '14px', background: 'white', color: '#2563EB', border: '2px solid #2563EB', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}>{r.back}</button>
-        <button onClick={handleFinish} disabled={loading} style={{ flex: 2, padding: '14px', background: loading ? '#C7D2FE' : 'linear-gradient(135deg, #2563EB, #3B82F6)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer' }}>
+      <div style={{ marginTop: '8px' }}>
+        <button onClick={handleFinish} disabled={loading} style={{ width: '100%', padding: '14px', background: loading ? '#C7D2FE' : 'linear-gradient(135deg, #2563EB, #3B82F6)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer' }}>
           {loading ? r.finishing : r.finish}
         </button>
       </div>
