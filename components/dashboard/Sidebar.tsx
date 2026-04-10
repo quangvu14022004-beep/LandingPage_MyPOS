@@ -16,11 +16,11 @@ export default function Sidebar({ section, setSection, sidebarOpen, setSidebarOp
   const isMobile = useIsMobile();
 
   const menuItems = [
-  { id: 'dashboard', icon: <LayoutDashboard size={18} />, label: d?.overview || 'Tổng quan', mobileLabel: 'Tổng quan' },
-  { id: 'accounts', icon: <Users size={18} />, label: d?.accounts || 'Tài khoản', mobileLabel: 'Tài khoản' },
-  { id: 'business-types', icon: <Building2 size={18} />, label: d?.businessTypes || 'Loại hình KD', mobileLabel: 'Loại hình' },
-  { id: 'audit-logs', icon: <History size={18} />, label: d?.auditLogs || 'Nhật ký', mobileLabel: 'Nhật ký' },
-  { id: 'settings', icon: <Settings size={18} />, label: d?.settings || 'Cài đặt', mobileLabel: 'Cài đặt' },
+  { id: 'dashboard', icon: <LayoutDashboard size={18} />, label: d?.overview || 'Tổng quan', mobileLabel: d?.overview || 'Tổng quan' },
+  { id: 'accounts', icon: <Users size={18} />, label: d?.accounts || 'Tài khoản', mobileLabel: d?.accounts || 'Tài khoản' },
+  { id: 'business-types', icon: <Building2 size={18} />, label: d?.businessTypes || 'Loại hình KD', mobileLabel: d?.businessTypesShort || d?.businessTypes || 'Loại hình' },
+  { id: 'audit-logs', icon: <History size={18} />, label: d?.auditLogs || 'Nhật ký', mobileLabel: d?.auditLogs || 'Nhật ký' },
+  { id: 'settings', icon: <Settings size={18} />, label: d?.settings || 'Cài đặt', mobileLabel: d?.settings || 'Cài đặt' },
 ];
 
   // MOBILE — Bottom Navigation
