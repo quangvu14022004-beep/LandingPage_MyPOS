@@ -51,31 +51,6 @@ export default function UserModal({ showModal, setShowModal, editUser, setEditUs
               ))}
             </select>
           </div>
-
-          {/* 3. Danh sách chọn Loại hình */}
-          <div>
-            <label style={{ fontSize: 12, color: colors.textMuted, display: 'block', marginBottom: 5 }}>Loại hình</label>
-            <select
-                value={
-                  Array.isArray(editUser?.businessType)
-                    ? editUser.businessType.includes('rental') && editUser.businessType.includes('sale')
-                      ? 'both'
-                      : editUser.businessType.includes('rental') ? 'rental' : 'sale'
-                    : 'sale'
-                }
-                onChange={e => {
-                  const val = e.target.value;
-                  const bt = val === 'both' ? ['rental', 'sale'] : val === 'rental' ? ['rental'] : ['sale'];
-                  setEditUser((p: any) => ({ ...p, businessType: bt }));
-                }}
-                style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.text, fontSize: 13, outline: 'none' }}
-              >
-                <option value="sale">Bán hàng</option>
-                <option value="rental">Lưu trú</option>
-                <option value="both">Cả hai</option>
-        </select>
-          </div>
-
         </div>
 
         {/* NÚT BẤM DƯỚI CÙNG */}

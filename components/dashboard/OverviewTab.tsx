@@ -232,7 +232,10 @@ export default function OverviewTab({
             </tr>
           </thead>
           <tbody>
-            {users.slice(0, 5).map((u: any) => (
+            {[...users]
+              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+              .slice(0, 5)
+              .map((u: any) => (
               <tr key={u.id}>
                 <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.text }}>{u.fullName}</td>
                 <td style={{ padding: '10px', borderBottom: `1px solid ${colors.border}`, color: colors.textMuted }}>{u.username}</td>

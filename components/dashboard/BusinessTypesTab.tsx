@@ -19,15 +19,17 @@ const bothCount = users.filter((u: any) => Array.isArray(u.businessType) && u.bu
     { id: 'both', label: d?.both || 'Cả hai', desc: 'Kết hợp cả bán hàng và lưu trú', count: bothCount, color: '#f59e0b', icon: <Store size={32} /> },
   ];
 
-  // Lọc ra danh sách user thuộc loại hình đang được chọn
+  // Lọc ra danh sách user thuộc loại hình đang được chọn mới nhất
   const getFilteredUsers = (typeId: string) =>
-  users.filter((u: any) => {
-    if (!Array.isArray(u.businessType)) return false;
-    if (typeId === 'sale') return u.businessType.includes('sale') && u.businessType.length === 1;
-    if (typeId === 'accommodation') return u.businessType.includes('accommodation') && u.businessType.length === 1;
-    if (typeId === 'both') return u.businessType.includes('accommodation') && u.businessType.includes('sale');
-    return false;
-  });
+  [...users]
+    .filter((u: any) => {
+      if (!Array.isArray(u.businessType)) return false;
+      if (typeId === 'sale') return u.businessType.includes('sale') && u.businessType.length === 1;
+      if (typeId === 'accommodation') return u.businessType.includes('accommodation') && u.businessType.length === 1;
+      if (typeId === 'both') return u.businessType.includes('accommodation') && u.businessType.includes('sale');
+      return false;
+    })
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
 const allFiltered = selectedType ? getFilteredUsers(selectedType) : [];
 const totalPages = Math.ceil(allFiltered.length / PAGE_SIZE);
