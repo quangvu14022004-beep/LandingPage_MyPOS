@@ -29,7 +29,7 @@ export default function Step1Account({ data, setData, onNext, loading, r }: any)
       client_id: '111214843801-g89e5otcfiqfob9sev9r8kba7fg58vll.apps.googleusercontent.com',
       callback: async (response: any) => {
         try {
-          // ✅ Xóa email cũ trước khi lưu cái mới
+          //  Xóa email cũ trước khi lưu cái mới
           localStorage.removeItem('google_email');
 
           const res = await fetch('http://localhost:3001/api/auth/google/token', {
@@ -45,7 +45,7 @@ export default function Step1Account({ data, setData, onNext, loading, r }: any)
 
           localStorage.setItem('token', data.access_token);
 
-          // ✅ Giải mã idToken để lấy email và lưu vào localStorage
+          //  Giải mã idToken để lấy email và lưu vào localStorage
           const payload = JSON.parse(atob(response.credential.split('.')[1]));
           localStorage.setItem('google_email', payload.email);
 

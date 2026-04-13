@@ -49,7 +49,7 @@ export default function MapSection() {
         boxZoom: false,
         keyboard: false,
         touchZoom: false,
-        maxBounds: [[1.0, 95.0], [25.0, 125.0]],
+        maxBounds: [[7.0, 101.0], [23.5, 110.0]],
         maxBoundsViscosity: 1.0,
       });
 

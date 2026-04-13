@@ -12,13 +12,45 @@
   return isMobile;
 };
  const VIETNAM_PROVINCES = [
-  "Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "Huế",
-  "An Giang", "Bắc Ninh", "Cà Mau", "Cao Bằng", "Đắk Lắk",
-  "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Tĩnh",
-  "Hưng Yên", "Khánh Hòa", "Lai Châu", "Lâm Đồng", "Lạng Sơn",
-  "Lào Cai", "Nghệ An", "Ninh Bình", "Phú Thọ", "Quảng Ngãi",
-  "Quảng Ninh", "Quảng Trị", "Sơn La", "Tây Ninh", "Thái Nguyên",
-  "Thanh Hóa", "Tuyên Quang", "Vĩnh Long", "Nha Trang"
+  // 6 Thành phố trực thuộc Trung ương
+  'Hà Nội',
+  'TP. Hồ Chí Minh',  // + Bình Dương + Bà Rịa - Vũng Tàu
+  'Hải Phòng',         // + Hải Dương
+  'Đà Nẵng',           // + Quảng Nam
+  'Cần Thơ',           // + Sóc Trăng + Hậu Giang
+  'Huế',               // giữ nguyên
+
+  // 28 Tỉnh
+  'Tuyên Quang',       // + Hà Giang
+  'Lào Cai',           // + Yên Bái
+  'Thái Nguyên',       // + Bắc Kạn
+  'Phú Thọ',           // + Vĩnh Phúc + Hòa Bình
+  'Bắc Ninh',          // + Bắc Giang
+  'Hưng Yên',          // + Thái Bình
+  'Ninh Bình',         // + Hà Nam + Nam Định
+  'Quảng Trị',         // + Quảng Bình
+  'Quảng Ngãi',        // + Kon Tum
+  'Gia Lai',           // + Bình Định
+  'Khánh Hòa',         // + Ninh Thuận
+  'Lâm Đồng',          // + Đắk Nông + Bình Thuận
+  'Đắk Lắk',           // + Phú Yên
+  'Đồng Nai',          // + Bình Phước
+  'Tây Ninh',          // + Long An
+  'Vĩnh Long',         // + Bến Tre + Trà Vinh
+  'Đồng Tháp',         // + Tiền Giang
+  'Cà Mau',            // + Bạc Liêu
+  'An Giang',          // + Kiên Giang
+
+  // Giữ nguyên
+  'Cao Bằng',
+  'Lai Châu',
+  'Điện Biên',
+  'Sơn La',
+  'Lạng Sơn',
+  'Quảng Ninh',
+  'Thanh Hóa',
+  'Nghệ An',
+  'Hà Tĩnh',
 ];
 
   export default function AccountsTab({ users, setUsers, onEditUser, showToast, onToggleStatus, colors, isDark, d }: any) {
