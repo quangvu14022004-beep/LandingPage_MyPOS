@@ -68,6 +68,14 @@ nav {
   border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s ease;
 }
 .btn-secondary:hover { background: #EFF6FF; transform: translateY(-4px); }
+.btn-download {
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+}
 .menu-toggle { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-gray); }
 
 .hero {

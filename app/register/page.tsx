@@ -341,7 +341,7 @@ useEffect(() => {
       
       localStorage.setItem('token', data.access_token || accessTokenRef.current);
       localStorage.removeItem('register_step1');
-      window.location.href = '/dashboard';
+      window.location.href = '/download';// sau khi đăng ký xong
     } catch { 
       setError(r.errConnect); 
       setLoading(false); 
