@@ -41,7 +41,7 @@ export default function ChangePasswordPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch('http://myposapi.onrender.com/api/auth/verify-old-password', {
+      const res = await fetch('https://myposapi.onrender.com/api/auth/verify-old-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, oldPassword }),
@@ -81,7 +81,7 @@ export default function ChangePasswordPage() {
     setLoading(true);
     try {
       const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-      const res = await fetch('http://myposapi.onrender.com/api/auth/change-password-direct', {
+      const res = await fetch('https://myposapi.onrender.com/api/auth/change-password-direct', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
