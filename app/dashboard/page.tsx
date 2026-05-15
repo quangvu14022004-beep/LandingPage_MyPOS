@@ -54,7 +54,7 @@ export default function DashboardPage() {
       try {
         const token = localStorage.getItem('admin_token');
         // Đã sửa thành cổng 3001
-        const res = await fetch('http://myposapi.onrender.com/api/v1/admin/users', {
+        const res = await fetch('https://myposapi.onrender.com/api/v1/admin/users', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -124,7 +124,7 @@ export default function DashboardPage() {
         }
       } else {
         const payload = { ...editUser, status: 'active' };
-        const res = await fetch(`http://myposapi.onrender.com/api/v1/admin/users`, {
+        const res = await fetch(`https://myposapi.onrender.com/api/v1/admin/users`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify(payload)
@@ -161,7 +161,7 @@ export default function DashboardPage() {
 
     try {
       // GỌI ĐÚNG ĐƯỜNG DẪN Backend: /toggle-status và truyền isActive
-      const res = await fetch(`http://myposapi.onrender.com/api/v1/admin/users/${user.id}/toggle-status`, {
+      const res = await fetch(`https://myposapi.onrender.com/api/v1/admin/users/${user.id}/toggle-status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ isLocked: newIsLocked }) 

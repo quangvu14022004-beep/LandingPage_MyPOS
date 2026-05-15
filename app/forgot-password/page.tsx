@@ -74,7 +74,7 @@ export default function ForgotPasswordPage() {
 
     setLoading(true);
     try {
-      const res = await fetch('http://myposapi.onrender.com/api/auth/forgot-password/send-otp', {
+      const res = await fetch('https://myposapi.onrender.com/api/auth/forgot-password/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ usernameOrEmail }),
@@ -104,7 +104,7 @@ export default function ForgotPasswordPage() {
 
     setLoading(true);
     try {
-      const res = await fetch('http://myposapi.onrender.com/api/auth/forgot-password/verify-otp', {
+      const res = await fetch('https://myposapi.onrender.com/api/auth/forgot-password/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -145,7 +145,7 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     try {
       const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-      const res = await fetch('http://myposapi.onrender.com/api/auth/forgot-password', {
+      const res = await fetch('https://myposapi.onrender.com/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
