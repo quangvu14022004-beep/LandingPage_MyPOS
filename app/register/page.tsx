@@ -108,7 +108,7 @@ export default function RegisterPage() {
   }, []);
   // Fetch danh sách businessTypes từ API
 useEffect(() => {
-  fetch('http://localhost:3001/api/business-types')
+  fetch('http://myposapi.onrender.com/api/business-types')
     .then(res => res.json())
     .then(data => { if (data.success) setBusinessTypes(data.data); })
     .catch(err => console.error(err));
@@ -227,7 +227,7 @@ useEffect(() => {
     localStorage.setItem('register_step1', JSON.stringify(step1));
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:3001/api/auth/pre-register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: step1.email, username: step1.username }) });
+      const res = await fetch('http://myposapi.onrender.com/api/auth/pre-register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: step1.email, username: step1.username }) });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.message || r.errServerRegister);
@@ -322,7 +322,7 @@ useEffect(() => {
     
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:3001/api/auth/shop/setup', {
+      const res = await fetch('http://myposapi.onrender.com/api/auth/shop/setup', {
         method: 'POST', 
         headers: { 
           'Content-Type': 'application/json', 

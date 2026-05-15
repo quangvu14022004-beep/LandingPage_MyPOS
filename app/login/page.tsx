@@ -13,7 +13,7 @@ export default function SuperAdminLogin() {
   if (!username || !password) { setError('Vui lòng nhập đầy đủ!'); return; }
   setLoading(true); setError('');
   try {
-    const res = await fetch('http://localhost:3001/api/v1/admin/auth/login', {
+    const res = await fetch('http://myposapi.onrender.com/api/v1/admin/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
