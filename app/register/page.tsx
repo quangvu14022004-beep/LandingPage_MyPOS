@@ -108,7 +108,7 @@ export default function RegisterPage() {
   }, []);
   // Fetch danh sách businessTypes từ API
 useEffect(() => {
-  fetch('https://myposapi.onrender.com/api/business-types')
+  fetch('https://myposapi.onrender.com/api/v1/business-types')
     .then(res => res.json())
     .then(data => { if (data.success) setBusinessTypes(data.data); })
     .catch(err => console.error(err));
@@ -227,7 +227,7 @@ useEffect(() => {
     localStorage.setItem('register_step1', JSON.stringify(step1));
     setLoading(true);
     try {
-      const res = await fetch('https://myposapi.onrender.com/api/auth/pre-register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: step1.email, username: step1.username }) });
+      const res = await fetch('https://myposapi.onrender.com/api/v1/auth/pre-register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: step1.email, username: step1.username }) });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.message || r.errServerRegister);
@@ -253,14 +253,14 @@ useEffect(() => {
     
     setLoading(true);
     try {
-      const resOtp = await fetch('https://myposapi.onrender.com/api/auth/verify-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: step1.email, otpCode: step2.otpCode }) });
+      const resOtp = await fetch('https://myposapi.onrender.com/api/v1/auth/verify-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: step1.email, otpCode: step2.otpCode }) });
       const dataOtp = await resOtp.json();
       if (!resOtp.ok) { setError('OTP không hợp lệ'); setLoading(false); return; }
 
       verifiedTokenRef.current = dataOtp.verifiedToken;
       const hashPass = await hashPassword(step1.password);
 
-      const resReg = await fetch('https://myposapi.onrender.com/api/auth/register', {
+      const resReg = await fetch('https://myposapi.onrender.com/api/v1/auth/register', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ verifiedToken: verifiedTokenRef.current, username: step1.username, password: hashPass, fullName: step1.fullName, email: step1.email, phone: step1.phone })
       });
@@ -322,7 +322,7 @@ useEffect(() => {
     
     setLoading(true);
     try {
-      const res = await fetch('https://myposapi.onrender.com/api/auth/shop/setup', {
+      const res = await fetch('https://myposapi.onrender.com/api/v1/auth/shop/setup', {
         method: 'POST', 
         headers: { 
           'Content-Type': 'application/json', 

@@ -26,13 +26,13 @@ export default function Step1Account({ data, setData, onNext, loading, r }: any)
     if (!container) return;
 
     google.accounts.id.initialize({
-      client_id: '111214843801-g89e5otcfiqfob9sev9r8kba7fg58vll.apps.googleusercontent.com',
+      client_id: '909913295236-8gcgqh2bp0fogl5th6c1vkt4sqsfgitb.apps.googleusercontent.com',
       callback: async (response: any) => {
         try {
           //  Xóa email cũ trước khi lưu cái mới
           localStorage.removeItem('google_email');
 
-          const res = await fetch('http://localhost:3001/api/auth/google/token', {
+          const res = await fetch('https://myposapi.onrender.com/api/v1/auth/google/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

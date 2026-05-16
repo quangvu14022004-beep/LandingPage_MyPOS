@@ -110,7 +110,7 @@ export default function DashboardPage() {
 
     try {
       if (editUser.id) {
-        const res = await fetch('https://myposapi.onrender.com/api/v1/admin/users', {
+        const res = await fetch(`https://myposapi.onrender.com/api/v1/admin/users/${editUser.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify(editUser)

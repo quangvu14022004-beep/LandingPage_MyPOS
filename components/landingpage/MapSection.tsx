@@ -19,7 +19,7 @@ export default function MapSection() {
   const { t } = useLang();
 
   useEffect(() => {
-    fetch('https://myposapi.onrender.com/api/shops')
+    fetch('https://myposapi.onrender.com/api/v1/shops')
       .then(res => res.json())
       .then(data => {
         if (data.success && Array.isArray(data.data)) {

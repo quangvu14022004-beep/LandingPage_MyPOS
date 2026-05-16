@@ -55,7 +55,7 @@ export default function AuditLogsTab({ colors, isDark,d }: any) {
       if (resourceFilter) params.append('resource', resourceFilter);
       if (successFilter !== '') params.append('success', successFilter);
 
-      const res = await fetch(`http://localhost:3001/api/v1/audit-logs?${params}`, {
+      const res = await fetch(`https://myposapi.onrender.com/api/v1/audit-logs?${params}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
